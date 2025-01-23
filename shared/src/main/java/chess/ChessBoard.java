@@ -2,6 +2,7 @@ package chess;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -41,4 +42,42 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
-   
+    public void resetBoard() {
+
+        board.clear();
+        //adding the pawns
+        for (int col =1; col <= 8; col++) {
+            board.put(new ChessPosition(2, col), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+            board.put(new ChessPosition(7, col), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+        }
+        //other pieces on the board
+        ChessPiece.PieceType[] pieces = {
+                ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
+        };
+        for (int col =1 ; col <= 8; col++) {
+            board.put(new ChessPosition(1, col), new ChessPiece(ChessGame.TeamColor.WHITE, pieces[col - 1]));
+            board.put(new ChessPosition(8, col), new ChessPiece(ChessGame.TeamColor.BLACK, pieces[col - 1]));
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.equals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(board);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "board=" + board +
+                '}';
+    }
+}
