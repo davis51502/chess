@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -9,16 +10,23 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private TeamColor teamTurn;
+    private ChessBoard board = new ChessBoard();
+    private boolean isGameOver = false;
     public ChessGame() {
-
+        this.teamTurn = TeamColor.WHITE;
+        this.board.resetBoard();
+    }
+    public ChessGame(TeamColor teamTurn, ChessBoard board) {
+        this.teamTurn = teamTurn;
+        this.board = board;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return this.teamTurn;
     }
 
     /**
@@ -27,7 +35,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.teamTurn = team;
     }
 
     /**
@@ -46,7 +54,32 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece observedPiece = this.board.getPiece(startPosition);
+        if (observedPiece == null) {return null;}
+        Collection<ChessMove> legalMoves = observedPiece.pieceMoves(this.board, startPosition);
+        Collection<ChessMove> newLegalMoves = new ArrayList<>();
+        for (ChessMove move : legalMoves) {
+            ChessBoard copyOfBoard = copyBoard(this.board);
+            copyOfBoard.addPiece(move.getStartPosition(), null);
+            copyOfBoard.addPiece(move.getEndPosition(), observedPiece);
+            ChessGame updatedGame = new ChessGame(this.teamTurn, copyOfBoard);
+
+            if (!updatedGame.isInCheck(observedPiece.getTeamColor())){
+                newLegalMoves.add(move);
+            }
+        }
+        return newLegalMoves;
+    }
+    public ChessBoard copyBoard(ChessBoard board) {
+        ChessBoard copyOfBoard = new ChessBoard();
+        for (int row=0; row<8; row++) {
+            for (int col =0; col <8; col++) {
+                ChessPosition position = new ChessPosition(row+1, col+1);
+                ChessPiece piece = board.getPiece(position);
+                copyOfBoard.addPiece(position, piece);
+
+            }
+        }return copyOfBoard;
     }
 
     /**
