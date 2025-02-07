@@ -97,7 +97,7 @@ public class ChessGame {
         if (legalMoves == null) {
             throw new InvalidMoveException("legal moves are null");
         }
-        if (legalMoves.contains(move)){ throw new InvalidMoveException("illegal move"); }
+        if (!legalMoves.contains(move)){ throw new InvalidMoveException("illegal move"); }
             ChessPiece observedPiece = this.board.getPiece(move.getStartPosition());
             if (observedPiece.getTeamColor() != this.teamColor) {
                 throw new InvalidMoveException("not your turn yet");
@@ -111,14 +111,7 @@ public class ChessGame {
 
 
     public void changeOfTurn(){
-        if (this.teamColor == TeamColor.WHITE)
-        {
-            this.teamColor = TeamColor.BLACK;
-        }
-        else
-        {
-            this.teamColor=TeamColor.WHITE;
-        }
+        this.teamColor = (this.teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
