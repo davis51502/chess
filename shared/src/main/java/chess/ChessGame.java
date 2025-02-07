@@ -13,6 +13,7 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamColor;
     private ChessBoard board = new ChessBoard();
+    public boolean isResigned = false;
     public ChessGame() {
         this.teamColor = TeamColor.WHITE;
         this.board.resetBoard();
@@ -56,7 +57,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece observedPiece = this.board.getPiece(startPosition);
-        if (observedPiece == null) {return null;}
+        if (observedPiece == null) {
+            return new ArrayList<>();
+        }
         Collection<ChessMove> legalMoves = observedPiece.pieceMoves(this.board, startPosition);
         Collection<ChessMove> newLegalMoves = new ArrayList<>();
         for (ChessMove move : legalMoves) {
@@ -146,7 +149,14 @@ public class ChessGame {
             }
         }return false;
     }
-
+    private boolean kingFinderChecker(Collection<ChessMove> enemyMoves, ChessPosition kingsChair){
+        for (ChessMove move : enemyMoves){
+            if (move.getEndPosition().equals(kingsChair)){
+                return true;
+            }
+        }
+        return false;
+    }
     public ChessPosition kingFinder (TeamColor teamColor){
         for (int row =0; row<8;row++) {
             for (int col = 0; col <8; col++){
@@ -161,14 +171,7 @@ public class ChessGame {
             }
         }return null;
     }
-    private boolean kingFinderChecker(Collection<ChessMove> enemyMoves, ChessPosition kingsChair){
-        for (ChessMove move : enemyMoves){
-            if (move.getEndPosition().equals(kingsChair)){
-                return true;
-            }
-        }
-        return false;
-    }
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -185,7 +188,7 @@ public class ChessGame {
                 ChessPosition observedPosition = new ChessPosition(row+1, col+1);
                 ChessPiece observedPiece = this.board.getPiece(observedPosition);
                 legalMoves = validMoves(observedPosition);
-                if(observedPiece != null && observedPiece.getTeamColor() == teamColor && legalMoves.isEmpty()) {
+                if(observedPiece != null && observedPiece.getTeamColor() == teamColor && (legalMoves != null && !legalMoves.isEmpty())) {
                     return false;
                 }
             }
@@ -200,30 +203,21 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        Collection<ChessMove> legalMoves;
-        boolean isInStalemate = true;
         if(isInCheckmate(teamColor))
         {
             return false;
-        }
-        ChessGame.TeamColor originalTeamColor;
-        originalTeamColor = teamColor;
-        if(this.teamColor != teamColor){
-            changeOfTurn();
         }
         for (int row =0; row<8; row++){
             for (int col=0; col<8; col++){
                 ChessPosition observedPosition = new ChessPosition(row+1, col+1);
                 ChessPiece observedPiece = this.board.getPiece(observedPosition);
-                legalMoves= validMoves(observedPosition);
-                if(observedPiece != null && observedPiece.getTeamColor()== teamColor && !legalMoves.isEmpty()) {
-                    isInStalemate = false;
-                    changeOfTurn();
+                Collection<ChessMove> legalMoves = validMoves(observedPosition);
+                if(observedPiece != null && observedPiece.getTeamColor()== teamColor && legalMoves != null && !legalMoves.isEmpty()) {
+                    return false;
                 }
             }
         }
-        if(this.teamColor != originalTeamColor) {changeOfTurn();}
-        return isInStalemate;
+        return true;
     }
 
     /**
