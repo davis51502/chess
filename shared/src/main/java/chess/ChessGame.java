@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -12,7 +13,6 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor teamColor;
     private ChessBoard board = new ChessBoard();
-    private boolean isGameOver = false;
     public ChessGame() {
         this.teamColor = TeamColor.WHITE;
         this.board.resetBoard();
@@ -37,6 +37,7 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         this.teamColor = team;
     }
+
 
     /**
      * Enum identifying the 2 possible teams in a chess game
@@ -110,7 +111,14 @@ public class ChessGame {
         }else{throw new InvalidMoveException("illegal moves");}
     }
     public void changeOfTurn(){
-        if (this.teamColor == TeamColor.WHITE) {this.teamColor = TeamColor.BLACK;}else{this.teamColor=TeamColor.WHITE;}
+        if (this.teamColor == TeamColor.WHITE)
+        {
+            this.teamColor = TeamColor.BLACK;
+        }
+        else
+        {
+            this.teamColor=TeamColor.WHITE;
+        }
     }
 
     /**
@@ -192,7 +200,30 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> legalMoves;
+        boolean isInStalemate = true;
+        if(isInCheckmate(teamColor))
+        {
+            return false;
+        }
+        ChessGame.TeamColor originalTeamColor;
+        originalTeamColor = teamColor;
+        if(this.teamColor != teamColor){
+            changeOfTurn();
+        }
+        for (int row =0; row<8; row++){
+            for (int col=0; col<8; col++){
+                ChessPosition observedPosition = new ChessPosition(row+1, col+1);
+                ChessPiece observedPiece = this.board.getPiece(observedPosition);
+                legalMoves= validMoves(observedPosition);
+                if(observedPiece != null && observedPiece.getTeamColor()== teamColor && !legalMoves.isEmpty()) {
+                    isInStalemate = false;
+                    changeOfTurn();
+                }
+            }
+        }
+        if(this.teamColor != originalTeamColor) {changeOfTurn();}
+        return isInStalemate;
     }
 
     /**
@@ -211,5 +242,26 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "teamColor=" + teamColor +
+                ", board=" + board +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, board);
     }
 }
