@@ -131,25 +131,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessBoard observedBoard = this.board;
         ChessPosition kingsChair = kingFinder(teamColor);
+        if (kingsChair == null) { throw new IllegalStateException("king not found on board for team:"+teamColor); }
         for (int row = 0; row <8; row++) {
             for (int col = 0; col <8; col++) {
-                ChessPosition observedPosition = new ChessPosition(row+1, col+1);
-                ChessPiece observedPiece = observedBoard.getPiece(observedPosition);
-                if (observedPiece == null) {
+                ChessPiece observedPiece = this.board.getPiece(new ChessPosition(row+1, col+1));
+                if (observedPiece == null || observedPiece.getTeamColor() == teamColor)  {
                     continue;
                 }
-                if (observedPiece.getTeamColor() != teamColor){
-                    Collection<ChessMove> enemyMoves = observedPiece.pieceMoves(observedBoard, observedPosition);
-                    if (kingFinderChecker(enemyMoves, kingsChair)){
+                if (canAttackKing(observedPiece, row, col, kingsChair)) {
                         return true;
                     }
                 }
             }
-        }return false;
+        return false;
     }
-    private boolean kingFinderChecker(Collection<ChessMove> enemyMoves, ChessPosition kingsChair){
+    private boolean canAttackKing(ChessPiece enemyPiece, int row, int col, ChessPosition kingsChair){
+        ChessPosition observedPosition = new ChessPosition(row+1, col+1);
+        Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(this.board, observedPosition);
         for (ChessMove move : enemyMoves){
             if (move.getEndPosition().equals(kingsChair)){
                 return true;
@@ -160,16 +159,12 @@ public class ChessGame {
     public ChessPosition kingFinder (TeamColor teamColor){
         for (int row =0; row<8;row++) {
             for (int col = 0; col <8; col++){
-                ChessPosition observedPosition = new ChessPosition(row+1, col+1);
-                ChessPiece observedPiece = this.board.getPiece(observedPosition);
-                if (observedPiece == null){
-                    continue;
-                }
-                if (observedPiece.getPieceType() == ChessPiece.PieceType.KING && observedPiece.getTeamColor() == teamColor){
-                    return observedPosition;
+                ChessPiece observedPiece = this.board.getPiece(new ChessPosition(row+1, col+1));
+                if (observedPiece != null && observedPiece.getPieceType() == ChessPiece.PieceType.KING && observedPiece.getTeamColor() == teamColor) {
+                    return new ChessPosition(row+1, col+1);
                 }
             }
-        }return null;
+        }return null; //king not found
     }
 
     /**
