@@ -94,25 +94,22 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> legalMoves = this.validMoves(move.getStartPosition());
-        ChessPiece observedPiece = this.board.getPiece(move.getStartPosition());
         if (legalMoves == null) {
-            throw new InvalidMoveException("legal moves null");
+            throw new InvalidMoveException("legal moves are null");
         }
-        if (legalMoves.contains(move)){
+        if (legalMoves.contains(move)){ throw new InvalidMoveException("illegal move"); }
+            ChessPiece observedPiece = this.board.getPiece(move.getStartPosition());
             if (observedPiece.getTeamColor() != this.teamColor) {
                 throw new InvalidMoveException("not your turn yet");
             }
-            else {
-                this.board.addPiece(move.getStartPosition(), null);
-                if (move.getPromotionPiece() == null) {
-                    this.board.addPiece(move.getEndPosition(), observedPiece);
-                } else {
-                    ChessPiece promotionPiece = new ChessPiece(observedPiece.getTeamColor(), move.getPromotionPiece());
-                    this.board.addPiece(move.getEndPosition(), promotionPiece);
-                } changeOfTurn();
-            }
-        }else{throw new InvalidMoveException("illegal moves");}
+            this.board.addPiece(move.getStartPosition(), null);
+            ChessPiece pieceToPlace = (move.getPromotionPiece() == null) ? observedPiece :
+                    new ChessPiece(observedPiece.getTeamColor(), move.getPromotionPiece());
+            this.board.addPiece(move.getEndPosition(), pieceToPlace);
+            changeOfTurn();
     }
+
+
     public void changeOfTurn(){
         if (this.teamColor == TeamColor.WHITE)
         {
