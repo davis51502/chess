@@ -7,8 +7,8 @@ import model.*;
 import java.util.*;
 
 public class GameService {
-    private AuthDAO authDAO = new AuthDAO(); // Data Access Object for authentication
-    private GameDAO gameDAO = new GameDAO(); // Data Access Object for game management
+    private final AuthDAO authDAO = new AuthDAO(); // Data Access Object for authentication
+    private final GameDAO gameDAO = new GameDAO(); // Data Access Object for game management
 
     /**
      * Creates a new game.
@@ -87,7 +87,7 @@ public class GameService {
         } else {
             // Handle joining as a BLACK player
             if (game.getBlackUsername() != null) {
-                return new ErrorResponse("Error: black username taken", 403); 
+                return new ErrorResponse("Error: black username taken", 403);
             }
 
             // Assign the user as the BLACK player and update the game in DAO

@@ -6,9 +6,9 @@ import dataaccess.UserDAO;
 
 public class DatabaseService {
     // instances
-    private AuthDAO authDAO = new AuthDAO();
-    private GameDAO gameDAO = new GameDAO();
-    private UserDAO userDAO = new UserDAO();
+    private final AuthDAO authDAO = new AuthDAO();
+    private final GameDAO gameDAO = new GameDAO();
+    private final UserDAO userDAO = new UserDAO();
 
 
     // clears database
@@ -21,10 +21,6 @@ public class DatabaseService {
             return sAuth;
         } else if (sGame != 1) {
             return sGame;
-        } else if (sUser != 1) {
-            return sUser;
-        }
-
-        return 1;
+        } else return sUser;
     }
 }
