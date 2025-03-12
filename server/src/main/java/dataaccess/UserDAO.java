@@ -50,25 +50,29 @@ public class UserDAO {
 
             }
             return user;
-        } catch
-        for (UserData existingUser : userDataList) {
-            if (existingUser.getUsername().equals(user.getUsername())) {
-                throw new DataAccessException("Username is already taken.");
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error creating user.");
         }
-
-        userDataList.add(user);
-
-        return user;
     }
 
-    // returns user by username
+    // Returns user by username
     public UserData getUser(String username) {
-        for (UserData user : userDataList) {
-            if (user.getUsername().equals(username)) {
-                return user;
+        try (var conn = DatabaseManager.getConnection()) {
+            String query = "SELECT id, username, email, password_hash FROM users WHERE username = ?";
+            try (var preparedStatement = conn.prepareStatement(query)) {
+                preparedStatement.setString(1, username);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(
+                                rs.getString("username"), rs.getString("passowrd_hash"), rs.getString("email")
+                        );
+                    }
+                }
             }
+        } catch (DataAccessException | SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return null;
     }
-}
