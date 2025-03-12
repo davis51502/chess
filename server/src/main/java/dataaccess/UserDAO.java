@@ -1,7 +1,8 @@
 package dataaccess;
 
 import model.UserData;
-
+import org.mindrot.jbcrypt.BCrypt;
+import java.sql.SQLException;
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +43,14 @@ public class UserDAO {
             try (var preparedStatement = conn.prepareStatement(query)) {
                 preparedStatement.setString(1, user.getUsername());
                 preparedStatement.setString(2, user.getEmail());
+                String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+                preparedStatement.setString(3, hashedPassword);
+                preparedStatement.executeUpdate();
+
 
             }
-        }
+            return user;
+        } catch
         for (UserData existingUser : userDataList) {
             if (existingUser.getUsername().equals(user.getUsername())) {
                 throw new DataAccessException("Username is already taken.");
