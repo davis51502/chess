@@ -52,6 +52,7 @@ public class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest("validUser", "password");
 
         Object response = userService.login(loginRequest);
+
         if (response instanceof ErrorResponse) {
             Assertions.assertEquals(200, ((ErrorResponse) response).getStatusCode());
         } else {
@@ -59,6 +60,8 @@ public class UserServiceTest {
             Assertions.assertNotNull(auth);
             Assertions.assertNotNull(auth.getAuthToken());
         }
+
+
     }
 
     // Negative Test Case: Login with incorrect password
