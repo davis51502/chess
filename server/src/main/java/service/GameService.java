@@ -2,99 +2,112 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import dataaccess.DataAccessException;
 import model.*;
 
 import java.util.*;
 
 public class GameService {
-    private final AuthDAO authDAO = new AuthDAO(); // Data Access Object for authentication
-    private final GameDAO gameDAO = new GameDAO(); // Data Access Object for game management
+    private AuthDAO authDAO = new AuthDAO();
+    private GameDAO gameDAO = new GameDAO();
 
-    /**
-     * Creates a new game.
-     *
-     * @param authToken The authentication token of the user.
-     * @param gameName  The name of the game to be created.
-     * @return A response object, either a CreateGameResponse or an ErrorResponse.
-     */
+    // Instance DAOs
     public Object create(String authToken, String gameName) {
-        // Validate the authentication token
-        AuthData authData = authDAO.getAuth(authToken);
+        AuthData authData;
+        try {
+            authData = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error checking auth", 500);
+        }
+
         if (authData == null) {
             return new ErrorResponse("Error: unauthorized", 401);
         }
 
         GameData game = gameDAO.createGame(gameName);
 
-        // Return a response with the created game's ID
         return new CreateGameResponse(game.getGameID());
     }
 
-    /**
-     * Lists all available games.
-     *
-     * @param authToken The authentication token of the user.
-     * @return A response object containing a list of games or an ErrorResponse.
-     */
     public Object list(String authToken) {
-        AuthData authData = authDAO.getAuth(authToken);
-        if (authData == null) {
-            return new ErrorResponse("Error: unauthorized", 401); // Return error if unauthorized
+        AuthData authData;
+        try {
+            authData = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error checking auth", 500);
         }
 
-        List<GameData> gameList = gameDAO.getAllGames();
+        if (authData == null) {
+            return new ErrorResponse("Error: unauthorized", 401);
+        }
+
+        List<GameData> gameList;
+        try {
+            gameList = gameDAO.getAllGames();
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error getting games", 500);
+        }
 
         List<GameDataDTO> gameDTOList = new ArrayList<>();
         for (GameData gameData : gameList) {
             gameDTOList.add(new GameDataDTO(gameData));
         }
-
         Map<String, List<GameDataDTO>> response = new HashMap<>();
         response.put("games", gameDTOList);
 
-        return response; // Return the list of games
+        return response;
     }
 
-    /**
-     * Allows a user to join an existing game.
-     *
-     * @param authToken       The authentication token of the user.
-     * @param gameJoinRequest The request containing the game ID and player color.
-     * @return A response object, either the updated GameData or an ErrorResponse.
-     */
     public Object join(String authToken, GameJoinRequest gameJoinRequest) {
-        AuthData authData = authDAO.getAuth(authToken);
-        if (authData == null) {
-            return new ErrorResponse("Error: unauthorized", 401); // Return error if unauthorized
+        AuthData authData;
+        try {
+            authData = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error checking auth", 500);
         }
-        GameData game = gameDAO.getGame(gameJoinRequest.getGameID());
+
+        if (authData == null) {
+            return new ErrorResponse("Error: unauthorized", 401);
+        }
+
+        GameData game;
+        try {
+            game = gameDAO.getGame(gameJoinRequest.getGameID());
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error getting game", 500);
+        }
 
         if (game == null) {
-            return new ErrorResponse("Error: no game exists", 400); // Return error if no such game exists
+            return new ErrorResponse("Error: no game exists", 400);
         }
 
-        // Handle joining as a WHITE player
         if (Objects.equals(gameJoinRequest.getPlayerColor(), "WHITE")) {
             if (game.getWhiteUsername() != null) {
-                return new ErrorResponse("Error: white username taken", 403); // Return error if WHITE is already taken
+                return new ErrorResponse("Error: white username taken", 403);
             }
 
-            // Assign the user as the WHITE player and update the game in DAO
             game.setWhiteUsername(authData.getUsername());
-            gameDAO.updateGame(game);
+            try {
+                gameDAO.updateGame(game);
+            } catch (DataAccessException e) {
+                return new ErrorResponse("Error getting game", 500);
+            }
 
-            return game; // Return updated game data
+            return game;
         } else {
-            // Handle joining as a BLACK player
             if (game.getBlackUsername() != null) {
                 return new ErrorResponse("Error: black username taken", 403);
             }
 
-            // Assign the user as the BLACK player and update the game in DAO
             game.setBlackUsername(authData.getUsername());
-            gameDAO.updateGame(game);
+            try {
+                gameDAO.updateGame(game);
+            } catch (DataAccessException e) {
+                return new ErrorResponse("Error getting game", 500);
+            }
 
-            return game; // Return updated game data
+            return game;
         }
+
     }
 }
