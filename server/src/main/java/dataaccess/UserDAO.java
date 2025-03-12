@@ -35,7 +35,7 @@ public class UserDAO {
     // Adds a user
     public UserData createUser(UserData user) throws DataAccessException {
         // Check if user w same address exists
-        if getUser(user.getUsername()). != null) {
+        if (getUser(user.getUsername()) != null) {
             throw new DataAccessException("Username is already taken.");
         }
         try (var conn = DatabaseManager.getConnection()) {
@@ -76,3 +76,4 @@ public class UserDAO {
         }
         return null;
     }
+}
