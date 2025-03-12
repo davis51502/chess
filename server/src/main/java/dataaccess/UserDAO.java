@@ -6,15 +6,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-    // store UserData in database
-    private static List<UserData> userDataList = new ArrayList<>();
+    public UserDAO(){
+        // Load the Database
+        try {
+            DatabaseManager.startUp();
+        } catch (DataAccessException e){
+            e.printStackTrace();
+        }
+    }
 
-    // clears users from database
+    // Clears users from database
     public int clear() {
         try {
-            userDataList.clear();
+            try (var conn  = DatabaseManager.getConnection()) {
+                try (var preparedStatement = conn.prepareStatement("DELETE FROM users")) {
+                    preparedStatement.executeUpdate();
+                }
+            }
             return 1; // Success
         } catch (Exception e) {
+            e.printStackTrace();
             return -1; // Error
         }
     }
