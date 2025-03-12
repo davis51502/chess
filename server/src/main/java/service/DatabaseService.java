@@ -21,6 +21,8 @@ public class DatabaseService {
             return sAuth;
         } else if (sGame != 1) {
             return sGame;
-        } else return sUser;
+        } else if (sUser != 1) {
+            return sUser;
+        };return 1;
     }
 }
