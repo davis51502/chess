@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 
@@ -29,20 +30,33 @@ public class UserService {
 
         if (user == null) {
             return new ErrorResponse("Error: unauthorized", 401);
-        } else if (Objects.equals(loginRequest.getPassword(), user.getPassword())) {
-            return authDAO.createAuth(user.getUsername());
+        } else if (BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
+            try {
+                return authDAO.createAuth(user.getUsername());
+            } catch (DataAccessException e) {
+                return new ErrorResponse("Error: unknown", 500);
+            }
         } else {
             return new ErrorResponse("Error: unauthorized", 401);
         }
     }
 
     public Object logout(String authToken) {
-        AuthData authData = authDAO.getAuth(authToken);
+        AuthData authData;
+        try {
+            authData = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            return new ErrorResponse("Error checking auth", 500);
+        }
 
         if (authData == null) {
             return new ErrorResponse("Error: unauthorized", 401);
         } else {
-            authDAO.deleteAuth(authData);
+            try {
+                authDAO.deleteAuth(authData);
+            } catch (DataAccessException e) {
+                return new ErrorResponse("Error: unknown", 500);
+            }
             return null;
         }
     }
