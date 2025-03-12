@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
@@ -42,8 +43,13 @@ public class DatabaseServiceTest {
         int result = databaseService.clearAll();
 
         Assertions.assertEquals(1, result);
-        Assertions.assertNull(authDAO.getAuth(authToken));
-        Assertions.assertNull(gameDAO.getGame(gameId));
+        try {
+            Assertions.assertNull(authDAO.getAuth(authToken));
+            Assertions.assertNull(gameDAO.getGame(gameId));
+        } catch (DataAccessException e){
+            e.printStackTrace();
+            Assertions.fail();
+        }
         Assertions.assertNull(userDAO.getUser("username"));
 
     }
