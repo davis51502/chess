@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,17 @@ public class UserDAO {
     // Adds a user
     public UserData createUser(UserData user) throws DataAccessException {
         // Check if user w same address exists
+        if getUser(user.getUsername()). != null) {
+            throw new DataAccessException("Username is already taken.");
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            String query = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
+            try (var preparedStatement = conn.prepareStatement(query)) {
+                preparedStatement.setString(1, user.getUsername());
+                preparedStatement.setString(2, user.getEmail());
+
+            }
+        }
         for (UserData existingUser : userDataList) {
             if (existingUser.getUsername().equals(user.getUsername())) {
                 throw new DataAccessException("Username is already taken.");

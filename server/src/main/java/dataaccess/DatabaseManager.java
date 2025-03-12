@@ -69,27 +69,4 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
-    public static void startUp() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        // Create Tables
-        try(var conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement  = conn.prepareStatement("CREATE TABLE IF NOT EXISTS game_data (\n" +
-                    "    gameID INT AUTO_INCREMENT PRIMARY KEY,\n" +
-                    "    whiteUsername VARCHAR(255),\n" +
-                    "    blackUsername VARCHAR(255),\n" +
-                    "    gameName VARCHAR(255) NOT NULL,\n" +
-                    "    game TEXT NOT NULL\n" +
-                    ");\n")) {
-                var rs = preparedStatement.executeUpdate();
-            }
-            try (var preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS auth_data (\n" +
-                    "    authToken VARCHAR(255) PRIMARY KEY,\n" +
-                    "    username VARCHAR(255) NOT NULL\n" +
-                    ");")) {
-                var rs = preparedStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-}
+  
