@@ -9,8 +9,10 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    private final int row;
-    private final int col;
+
+    private int row;
+    private int col;
+
     public ChessPosition(int row, int col) {
         this.row = row;
         this.col = col;
@@ -48,9 +50,8 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "ChessPosition{" +
-                "row=" + row +
-                ", col=" + col +
+        return "{"+ row +
+                ", " + col +
                 '}';
     }
 }

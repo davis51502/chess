@@ -254,7 +254,7 @@ public class GameDAOTests {
         }
 
         Assertions.assertNotNull(updatedGame);
-        Assertions.assertEquals(chessGame, updatedGame.getGame()); // Ensures the game data was updated
+        Assertions.assertEquals(chessGame, updatedGame.getGame());
     }
 
     // Negative test case - updateGame()

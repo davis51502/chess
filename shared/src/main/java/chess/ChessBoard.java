@@ -1,6 +1,7 @@
 package chess;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -10,10 +11,11 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private  ChessPiece[][] layoutOfBoard;
+
+    Map<ChessPosition, ChessPiece> board;
 
     public ChessBoard() {
-        layoutOfBoard = new ChessPiece[8][8];
+        this.board = new HashMap<ChessPosition, ChessPiece>();
     }
 
     /**
@@ -23,8 +25,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-
-        layoutOfBoard[position.getColumn()-1][position.getRow()-1] = piece;
+        this.board.put(position, piece);
     }
 
     /**
@@ -35,14 +36,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return layoutOfBoard[position.getColumn()-1][position.getRow()-1];
-    }
-
-    public ChessGame.TeamColor getTeamOfSquare(ChessPosition position) {
-        if (getPiece(position) != null) {
-            return getPiece(position).getTeamColor();
-        }
-        else return null;
+        return this.board.get(position);
     }
 
     /**
@@ -50,21 +44,57 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        layoutOfBoard = new ChessPiece[8][8];
-        ChessPiece.PieceType[] piecesOrder = {
-                ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
-        };
+        loadBoard("""
+                |r|n|b|q|k|b|n|r|
+                |p|p|p|p|p|p|p|p|
+                | | | | | | | | |
+                | | | | | | | | |
+                | | | | | | | | |
+                | | | | | | | | |
+                |P|P|P|P|P|P|P|P|
+                |R|N|B|Q|K|B|N|R|
+                """);
+    }
 
-        //add white 
-        for (int col = 0; col < 8; col++) {
-            addPiece(new ChessPosition(1, col + 1), new ChessPiece(ChessGame.TeamColor.WHITE, piecesOrder[col]));
-            addPiece(new ChessPosition(2, col + 1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
-        }
+    public void setBoard(Map<ChessPosition, ChessPiece> board) {
+        this.board = board;
+    }
 
-        //add black 
-        for (int col = 0; col < 8; col++) {
-            addPiece(new ChessPosition(8, col + 1), new ChessPiece(ChessGame.TeamColor.BLACK, piecesOrder[col]));
-            addPiece(new ChessPosition(7, col + 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+    private static final Map<Character, ChessPiece.PieceType> CHAR_TO_TYPE_MAP = Map.of(
+            'p', ChessPiece.PieceType.PAWN,
+            'n', ChessPiece.PieceType.KNIGHT,
+            'r', ChessPiece.PieceType.ROOK,
+            'q', ChessPiece.PieceType.QUEEN,
+            'k', ChessPiece.PieceType.KING,
+            'b', ChessPiece.PieceType.BISHOP);
+
+    private void loadBoard(String boardText) {
+        this.board = new HashMap<ChessPosition, ChessPiece>();
+        int column = 1;
+        int row = 8;
+        for (var c : boardText.toCharArray()) {
+            switch (c) {
+                // No Piece
+                case ' ' -> column++;
+                // New Line
+                case '\n' -> {
+                    column = 1;
+                    row--;
+                }
+                // Piece Boundary
+                case '|' -> {
+                }
+                // Piece to Add
+                default -> {
+                    ChessGame.TeamColor color = Character.isUpperCase(c) ? ChessGame.TeamColor.WHITE
+                            : ChessGame.TeamColor.BLACK;
+                    var type = CHAR_TO_TYPE_MAP.get(Character.toLowerCase(c));
+                    var piece = new ChessPiece(color, type);
+                    var position = new ChessPosition(row, column);
+                    addPiece(position, piece);
+                    column++;
+                }
+            }
         }
     }
 
@@ -74,18 +104,52 @@ public class ChessBoard {
             return false;
         }
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(layoutOfBoard, that.layoutOfBoard);
+
+        // Iterate through all 8 rows and 8 columns to check the pieces
+        for (int row = 8; row >= 1; row--) {
+            for (int column = 1; column <= 8; column++) {
+                ChessPosition position = new ChessPosition(row, column);
+                ChessPiece thisPiece = this.getPiece(position);
+                ChessPiece thatPiece = that.getPiece(position);
+
+                if (thisPiece == null && thatPiece != null || thisPiece != null && thatPiece == null) {
+                    return false;
+                }
+                if (thisPiece != null && thatPiece != null) {
+                    if (thisPiece.getPieceType() != thatPiece.getPieceType() ||
+                            thisPiece.getTeamColor() != thatPiece.getTeamColor()) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // If all checks pass, the boards are equal
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(layoutOfBoard);
+        return Objects.hashCode(board);
     }
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "layoutOfBoard=" + Arrays.toString(layoutOfBoard) +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        for (int row = 8; row >= 1; row--) {
+            for (int column = 1; column <= 8; column++) {
+                ChessPosition position = new ChessPosition(row, column);
+                ChessPiece piece = getPiece(position);
+
+                if (piece == null) {
+                    sb.append("| ");
+                } else {
+                    sb.append("|").append(piece.getPieceType().toString().charAt(0));
+                }
+            }
+            sb.append("|\n");
+        }
+        return sb.toString();
     }
 }

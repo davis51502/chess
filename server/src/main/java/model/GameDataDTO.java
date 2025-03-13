@@ -8,13 +8,10 @@ public class GameDataDTO {
 
     // The unique identifier for the game
     private int gameID;
-
     // The username of the player playing as white
     private String whiteUsername;
-
     // The username of the player playing as black
     private String blackUsername;
-
     // The name of the game
     private String gameName;
 

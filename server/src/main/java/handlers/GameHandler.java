@@ -3,9 +3,7 @@ package handlers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import model.ErrorResponse;
-import model.GameJoinRequest;
-import model.ResponseObject;
+import model.*;
 import service.GameService;
 import spark.Request;
 import spark.Response;
@@ -13,21 +11,24 @@ import spark.Response;
 import java.util.Objects;
 
 public class GameHandler {
-
-    private final Gson gson = new Gson();
-    private final GameService gameService = new GameService();
+    private Gson gson = new Gson();
+    private GameService gameService = new GameService();
 
     public Object create(Request req, Response res) {
         String authToken = req.headers("authorization");
 
-        if (isInvalidAuthToken(authToken)) {
+        if (authToken == null || authToken.isEmpty()) {
             res.status(401);
             return gson.toJson(new ResponseObject("Error: unauthorized"));
         }
 
-        String gameName;
+        String gameName = null;
         try {
-            JsonObject jsonBody = JsonParser.parseString(req.body()).getAsJsonObject();
+            // Get the body of the request and parse it as a JSON object
+            String requestBody = req.body();
+            JsonObject jsonBody = JsonParser.parseString(requestBody).getAsJsonObject();
+
+            // Get the value of "gameName" from the JSON object
             if (jsonBody.has("gameName")) {
                 gameName = jsonBody.get("gameName").getAsString();
             } else {
@@ -41,11 +42,9 @@ public class GameHandler {
 
         Object response = gameService.create(authToken, gameName);
 
-        if (response instanceof ErrorResponse errorResponse) {
-            if (errorResponse.getStatusCode() == 401) {
-                res.status(401);
-                return gson.toJson(new ResponseObject("Error: unauthorized"));
-            }
+        if (response instanceof ErrorResponse && ((ErrorResponse) response).getStatusCode() == 401) {
+            res.status(401);
+            return gson.toJson(new ResponseObject("Error: unauthorized"));
         }
 
         res.status(200);
@@ -55,18 +54,16 @@ public class GameHandler {
     public Object list(Request req, Response res) {
         String authToken = req.headers("authorization");
 
-        if (isInvalidAuthToken(authToken)) {
+        if (authToken == null || authToken.isEmpty()) {
             res.status(401);
             return gson.toJson(new ResponseObject("Error: unauthorized"));
         }
 
         Object response = gameService.list(authToken);
 
-        if (response instanceof ErrorResponse errorResponse) {
-            if (errorResponse.getStatusCode() == 401) {
-                res.status(401);
-                return gson.toJson(new ResponseObject("Error: unauthorized"));
-            }
+        if (response instanceof ErrorResponse && ((ErrorResponse) response).getStatusCode() == 401) {
+            res.status(401);
+            return gson.toJson(new ResponseObject("Error: unauthorized"));
         }
 
         res.status(200);
@@ -76,7 +73,7 @@ public class GameHandler {
     public Object join(Request req, Response res) {
         String authToken = req.headers("authorization");
 
-        if (isInvalidAuthToken(authToken)) {
+        if (authToken == null || authToken.isEmpty()) {
             res.status(401);
             return gson.toJson(new ResponseObject("Error: unauthorized"));
         }
@@ -84,45 +81,36 @@ public class GameHandler {
         GameJoinRequest gameJoinRequest;
         try {
             gameJoinRequest = gson.fromJson(req.body(), GameJoinRequest.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             res.status(400);
             return gson.toJson(new ResponseObject("Error: bad request"));
         }
 
-        if (!isValidPlayerColor(gameJoinRequest.getPlayerColor())) {
+        if (!(Objects.equals(gameJoinRequest.getPlayerColor(), "WHITE") || Objects.equals(gameJoinRequest.getPlayerColor(), "BLACK"))) {
             res.status(400);
             return gson.toJson(new ResponseObject("Error: bad request"));
         }
 
         Object response = gameService.join(authToken, gameJoinRequest);
 
-        if (response instanceof ErrorResponse errorResponse) {
-            switch (errorResponse.getStatusCode()) {
-                case 400 -> {
-                    res.status(400);
-                    return gson.toJson(new ResponseObject("Error: bad request"));
-                }
-                case 401 -> {
-                    res.status(401);
-                    return gson.toJson(new ResponseObject("Error: unauthorized"));
-                }
-                case 403 -> {
-                    res.status(403);
-                    return gson.toJson(new ResponseObject("Error: already taken"));
-                }
-                default -> throw new IllegalStateException("Unexpected status code");
+        if (response instanceof ErrorResponse) {
+            if (((ErrorResponse) response).getStatusCode() == 400) {
+                res.status(400);
+                return gson.toJson(new ResponseObject("Error: bad request"));
+            }
+
+            if (((ErrorResponse) response).getStatusCode() == 401) {
+                res.status(401);
+                return gson.toJson(new ResponseObject("Error: unauthorized"));
+            }
+
+            if (((ErrorResponse) response).getStatusCode() == 403) {
+                res.status(403);
+                return gson.toJson(new ResponseObject("Error: already taken"));
             }
         }
 
         res.status(200);
         return gson.toJson(response);
-    }
-
-    private boolean isInvalidAuthToken(String authToken) {
-        return authToken == null || authToken.isEmpty();
-    }
-
-    private boolean isValidPlayerColor(String playerColor) {
-        return Objects.equals(playerColor, "WHITE") || Objects.equals(playerColor, "BLACK");
     }
 }

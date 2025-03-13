@@ -300,14 +300,14 @@ public class StandardAPITests {
         TestListEntry[] expectedList = new TestListEntry[4];
 
         //1 as black from A
-        String game1Name = "I'm numbah one!";
+        String game1Name = "Yo soy numero uno!";
         TestCreateResult game1 = serverFacade.createGame(new TestCreateRequest(game1Name), authA.getAuthToken());
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game1.getGameID()), authA.getAuthToken());
         expectedList[0] = new TestListEntry(game1.getGameID(), game1Name, null, authA.getUsername());
 
 
         //1 as white from B
-        String game2Name = "Lonely";
+        String game2Name = "RIP";
         TestCreateResult game2 = serverFacade.createGame(new TestCreateRequest(game2Name), authB.getAuthToken());
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game2.getGameID()), authB.getAuthToken());
         expectedList[1] = new TestListEntry(game2.getGameID(), game2Name, authB.getUsername(), null);
@@ -322,7 +322,7 @@ public class StandardAPITests {
 
 
         //C play self
-        String game4Name = "All by myself";
+        String game4Name = "Alone...";
         TestCreateResult game4 = serverFacade.createGame(new TestCreateRequest(game4Name), authC.getAuthToken());
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game4.getGameID()), authC.getAuthToken());
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game4.getGameID()), authC.getAuthToken());

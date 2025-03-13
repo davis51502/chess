@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+
+
 import java.sql.SQLException;
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class UserDAO {
                 try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
                         return new UserData(
-                                rs.getString("username"), rs.getString("passowrd_hash"), rs.getString("email")
+                                rs.getString("username"), rs.getString("password_hash"), rs.getString("email")
                         );
                     }
                 }
