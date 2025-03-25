@@ -27,12 +27,11 @@ public class ChessBoard {
     private static final String BLACK_KNIGHT = EscapeSequences.BLACK_KNIGHT;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
 
-    // Maps for White & Black pieces
+    // Maps for Black + White Pieces
     private static final Map<ChessPiece.PieceType, String> WHITE_MAP = new HashMap<>();
     private static final Map<ChessPiece.PieceType, String> BLACK_MAP = new HashMap<>();
 
     static {
-        // Populate White pieces map
         WHITE_MAP.put(ChessPiece.PieceType.KING, WHITE_KING);
         WHITE_MAP.put(ChessPiece.PieceType.QUEEN, WHITE_QUEEN);
         WHITE_MAP.put(ChessPiece.PieceType.ROOK, WHITE_ROOK);
@@ -41,7 +40,6 @@ public class ChessBoard {
         WHITE_MAP.put(ChessPiece.PieceType.PAWN, WHITE_PAWN);
         WHITE_MAP.put(null, EMPTY);
 
-        // Populate Black pieces map
         BLACK_MAP.put(ChessPiece.PieceType.KING, BLACK_KING);
         BLACK_MAP.put(ChessPiece.PieceType.QUEEN, BLACK_QUEEN);
         BLACK_MAP.put(ChessPiece.PieceType.ROOK, BLACK_ROOK);
@@ -57,28 +55,20 @@ public class ChessBoard {
 
     public static void drawWhite(chess.ChessBoard board) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
-
         drawHeaders(out, HEADERS);
         resetColor(out);
-
         drawChessBoard(out, board);
-
         drawHeaders(out, HEADERS);
         resetColor(out);
     }
 
     public static void drawBlack(chess.ChessBoard board) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
-
         drawHeaders(out, HEADERS_REVERSED);
         resetColor(out);
-
         drawChessBoardReversed(out, board);
-
         drawHeaders(out, HEADERS_REVERSED);
         resetColor(out);
     }
@@ -94,7 +84,6 @@ public class ChessBoard {
             printHeaderText(out, headers[boardCol]);
         }
         resetColor(out);
-
         out.println();
     }
 
@@ -102,7 +91,6 @@ public class ChessBoard {
     private static void printHeaderText(PrintStream out, String player) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_LIGHT_PINK);
-
         out.print(player);
     }
 
@@ -157,7 +145,6 @@ public class ChessBoard {
 
     private static void drawChessBoardReversed(PrintStream out, chess.ChessBoard chessBoard) {
         boolean turn = true;
-//        ChessPiece current;
         for (int boardRow = 0; boardRow < 8; ++boardRow) {
             for (int squareRow = 9; squareRow > -1; --squareRow) {
                 turn = isTurn(out, chessBoard, turn, boardRow, squareRow);
