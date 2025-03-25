@@ -6,6 +6,6 @@ public class Client {
         if (args.length == 1) {
             serverUrl = args[0];
         }
-
+        new Repl(serverUrl).run();
     }
 }
