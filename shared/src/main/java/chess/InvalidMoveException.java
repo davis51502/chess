@@ -5,7 +5,7 @@ package chess;
  */
 public class InvalidMoveException extends Exception {
 
-    public InvalidMoveException() {}
+    public InvalidMoveException(int i, String s) {}
 
     public InvalidMoveException(String message) {
         super(message);
