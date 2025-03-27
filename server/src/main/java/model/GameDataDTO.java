@@ -1,5 +1,6 @@
 package model;
 
+
 /**
  * Data Transfer Object (DTO) for game data.
  * This class is used to transfer game-related information between different layers of the application.

@@ -1,10 +1,6 @@
 package handlers;
 
-import model.ErrorResponse;
-import model.LoginRequest;
-import model.ResponseObject;
-import model.UserData;
-import org.eclipse.jetty.server.Authentication;
+import model.*;
 import service.UserService;
 import spark.Request;
 import spark.Response;
