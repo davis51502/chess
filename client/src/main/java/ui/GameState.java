@@ -28,7 +28,7 @@ public class GameState {
     }
 
     public void getCommand() {
-        System.out.print(SET_TEXT_COLOR_BLACK);
+        System.out.print(SET_TEXT_COLOR_WHITE);
         switch (currentState) {
             case LOGGED_OUT:
                 System.out.print("[LOGGED_OUT] >>> ");
