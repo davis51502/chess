@@ -77,7 +77,7 @@ public class DrawChessBoard {
     }
 
     private static void resetColor(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
+        out.print(RESET_BG_COLOR);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 

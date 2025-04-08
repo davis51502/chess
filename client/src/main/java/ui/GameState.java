@@ -118,7 +118,8 @@ public class GameState {
     private void tryLogin(String[] command) {
         try {
             if (command.length != 3) {
-                throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
+                System.out.println("Invalid number of params");
+                return;
             }
             LoginRequest loginInfo = new LoginRequest(command[1], command[2]);
             serverFacade.login(loginInfo);
@@ -173,6 +174,10 @@ public class GameState {
                 }
                 break;
             case "observe":
+                if (command.length != 2) {
+                    System.out.println("Invalid number of params");
+                    break;
+                }
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 boardDrawer.drawBoard(board, ChessGame.TeamColor.WHITE);
