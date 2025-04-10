@@ -12,9 +12,9 @@ public class DrawChessBoard {
     /**
      * Draws the chess board with the current piece positions and highlights legal moves.
      *
-     * @param chessBoard The current state of the chess board.
-     * @param teamColor  The perspective from which the board is drawn (white or black).
-     * @param legalMoves Positions to highlight as legal move destinations.
+     * @param chessBoard  The current state of the chess board.
+     * @param teamColor   The perspective from which the board is drawn (white or black).
+     * @param legalMoves  Positions to highlight as legal move destinations.
      */
     public void drawBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor, Collection<ChessPosition> legalMoves) {
         // Print the file letters (a–h) at the top
@@ -118,5 +118,29 @@ public class DrawChessBoard {
 
         System.out.print(RESET_BG_COLOR);
         System.out.println();
+    }
+
+    /**
+     * Highlights all legal move destinations for a selected piece.
+     *
+     * @param chessBoard     The current board state.
+     * @param teamColor      The color of the player making the move.
+     * @param startPosition  The position of the piece to move.
+     */
+    public void drawHighlightedChessBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor, ChessPosition startPosition) {
+        ChessGame game = new ChessGame();
+        game.setBoard(chessBoard);
+        game.setTeamTurn(teamColor);
+
+        // Fetch all legal moves for the selected piece
+        Collection<ChessMove> chessMoves = game.validMoves(startPosition);
+        Collection<ChessPosition> legalMoves = new ArrayList<>();
+
+        for (ChessMove move : chessMoves) {
+            legalMoves.add(move.getEndPosition());
+        }
+
+        // Draw board with highlighted legal moves
+        drawBoard(chessBoard, teamColor, legalMoves);
     }
 }
