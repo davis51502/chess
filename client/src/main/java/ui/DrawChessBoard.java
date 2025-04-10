@@ -9,95 +9,123 @@ import static ui.EscapeSequences.*;
 
 public class DrawChessBoard {
 
-    public void drawBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor, Collection<ChessPosition> legalMoves) {
-        printRowLetters(false);
+    private static final String EMPTY = "   "; // 3 spaces to maintain consistent cell width
 
-        for (int row = 8; row >= 1; row--) {
-            printColumnNumber(row);
+    public void drawBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor, Collection<ChessPosition> legalMoves) {
+        // Draw the board with consistent spacing
+        printRowLetters(teamColor);
+        for (int row = 8; row >= 1; row--) { // Reversed to count down from 8 to 1
+            printColumnNumber(row, teamColor);
             for (int column = 1; column <= 8; column++) {
                 ChessPosition pos = new ChessPosition(
-                        teamColor == ChessGame.TeamColor.WHITE ? (9 - row) : row,
+                        teamColor == ChessGame.TeamColor.WHITE ? row : (9 - row),
                         teamColor == ChessGame.TeamColor.BLACK ? (9 - column) : column);
-
                 boolean legalMove = legalMoves.contains(pos);
 
                 // Background color
-                if ((row + column) % 2 == 0) {
-                    System.out.print(legalMove ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_BROWN);
+                if ((row + column) % 2 != 0) { // Flipped the checkerboard pattern
+                    if (legalMove) {
+                        System.out.print(SET_BG_COLOR_LIGHT_GREEN);
+                    } else {
+                        System.out.print(SET_BG_COLOR_LIGHT_BROWN);
+                    }
                 } else {
-                    System.out.print(legalMove ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_BROWN);
+                    if (legalMove) {
+                        System.out.print(SET_BG_COLOR_DARK_GREEN);
+                    } else {
+                        System.out.print(SET_BG_COLOR_DARK_BROWN);
+                    }
                 }
 
-                // Get and draw piece - ensuring consistent width
+                // Get Piece
                 ChessPiece piece = chessBoard.getPiece(pos);
                 if (piece == null) {
-                    System.out.print("   "); // three spaces for empty squares to match piece width
-                } continue;
+                    System.out.print(EMPTY);
+                    continue;
+                }
+
+                // Draw piece with consistent spacing
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    switch (piece.getPieceType()) {
+                        case KING:
+                            System.out.print(" " + WHITE_KING.trim() + " ");
+                            break;
+                        case QUEEN:
+                            System.out.print(" " + WHITE_QUEEN.trim() + " ");
+                            break;
+                        case ROOK:
+                            System.out.print(" " + WHITE_ROOK.trim() + " ");
+                            break;
+                        case BISHOP:
+                            System.out.print(" " + WHITE_BISHOP.trim() + " ");
+                            break;
+                        case KNIGHT:
+                            System.out.print(" " + WHITE_KNIGHT.trim() + " ");
+                            break;
+                        case PAWN:
+                            System.out.print(" " + WHITE_PAWN.trim() + " ");
+                            break;
+                        default:
+                            System.out.print(EMPTY);
+                            break;
+                    }
+                } else {
+                    switch (piece.getPieceType()) {
+                        case KING:
+                            System.out.print(" " + BLACK_KING.trim() + " ");
+                            break;
+                        case QUEEN:
+                            System.out.print(" " + BLACK_QUEEN.trim() + " ");
+                            break;
+                        case ROOK:
+                            System.out.print(" " + BLACK_ROOK.trim() + " ");
+                            break;
+                        case BISHOP:
+                            System.out.print(" " + BLACK_BISHOP.trim() + " ");
+                            break;
+                        case KNIGHT:
+                            System.out.print(" " + BLACK_KNIGHT.trim() + " ");
+                            break;
+                        case PAWN:
+                            System.out.print(" " + BLACK_PAWN.trim() + " ");
+                            break;
+                        default:
+                            System.out.print(EMPTY);
+                            break;
+                    }
+                }
             }
-            System.out.print(" ");
-            printColumnNumber(row);
+            printColumnNumber(row, teamColor);
             System.out.print(RESET_BG_COLOR);
             System.out.println();
         }
-
-        printRowLetters(false);
+        printRowLetters(teamColor);
     }
 
-    private void drawPiece(ChessPiece piece) {
-        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            switch (piece.getPieceType()) {
-                case KING -> System.out.print(WHITE_KING);
-                case QUEEN -> System.out.print(WHITE_QUEEN);
-                case ROOK -> System.out.print(WHITE_ROOK);
-                case BISHOP -> System.out.print(WHITE_BISHOP);
-                case KNIGHT -> System.out.print(WHITE_KNIGHT);
-                case PAWN -> System.out.print(WHITE_PAWN);
-                default -> System.out.print("  "); // Two spaces for consistency
-            }
-        } else {
-            switch (piece.getPieceType()) {
-                case KING -> System.out.print(BLACK_KING);
-                case QUEEN -> System.out.print(BLACK_QUEEN);
-                case ROOK -> System.out.print(BLACK_ROOK);
-                case BISHOP -> System.out.print(BLACK_BISHOP);
-                case KNIGHT -> System.out.print(BLACK_KNIGHT);
-                case PAWN -> System.out.print(BLACK_PAWN);
-                default -> System.out.print("  "); // Two spaces for consistency
-            }
-        }
-    }
-
-    private static void printColumnNumber(int row) {
+    private static void printColumnNumber(int row, ChessGame.TeamColor teamColor) {
         System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.print(SET_BG_COLOR_DARK_GREY);
+        // Just print the row number directly
         System.out.print(" " + row + " ");
     }
 
-    private static void printRowLetters(boolean reversed) {
+    private static void printRowLetters(ChessGame.TeamColor teamColor) {
         System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.print(SET_BG_COLOR_DARK_GREY);
 
-        String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
-        if (reversed) {
-            reverseArray(letters);
-        }
+        // Use consistent spacing for column letters
+        System.out.print("   ");
+        char[] letters = teamColor == ChessGame.TeamColor.WHITE ?
+                new char[] {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'} :
+                new char[] {'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
 
-        System.out.print("   "); // Padding before letters
-        for (String letter : letters) {
+        for (char letter : letters) {
             System.out.print(" " + letter + " ");
         }
-        System.out.print("   "); // Padding after letters
+        System.out.print("   ");
 
         System.out.print(RESET_BG_COLOR);
         System.out.println();
-    }
-
-    private static void reverseArray(String[] array) {
-        for (int i = 0; i < array.length / 2; i++) {
-            String temp = array[i];
-            array[i] = array[array.length - 1 - i];
-            array[array.length - 1 - i] = temp;
-        }
     }
 
     public void drawHighlightedChessBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor, ChessPosition startPosition) {
@@ -105,6 +133,7 @@ public class DrawChessBoard {
         game.setBoard(chessBoard);
         game.setTeamTurn(teamColor);
 
+        // Get the legal moves, then grab the end positions
         Collection<ChessMove> chessMoves = game.validMoves(startPosition);
         Collection<ChessPosition> legalMoves = new ArrayList<>();
 
