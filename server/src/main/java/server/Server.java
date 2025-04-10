@@ -11,6 +11,8 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
+        Spark.webSocket("/ws", WSServer.class);
+
         Spark.staticFiles.location("web");
 
         var serializer = new Gson();
