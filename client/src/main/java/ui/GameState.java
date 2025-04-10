@@ -311,7 +311,6 @@ public class GameState {
                         || (teamColor == ChessGame.TeamColor.BLACK && game.getBlackUsername() != null
                         && game.getBlackUsername().equalsIgnoreCase(username))
         ) {
-            // User is already in game
             serverFacade.joinGameWS(new GameJoinRequest(command[2].toUpperCase(), gameID));
         } else if (
                 (teamColor == ChessGame.TeamColor.WHITE
@@ -353,6 +352,7 @@ public class GameState {
                     ChessPosition moveEnd = parseChessPosition(command[2]);
 
                     serverFacade.makeMove(new ChessMove(moveStart, moveEnd, null), gameID);
+                    printInGame = true;
                     break;
                 case "leave":
                     serverFacade.leaveGame(gameID);
