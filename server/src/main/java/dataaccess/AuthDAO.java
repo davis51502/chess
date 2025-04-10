@@ -8,8 +8,6 @@ import java.util.UUID;
 
 
 public class AuthDAO {
-    private static List<AuthData> authDataList = new ArrayList<>();
-
     public int clear() {
         try {
             try (var conn = DatabaseManager.getConnection()) {
