@@ -32,9 +32,7 @@ public class DrawChessBoard {
                 ChessPiece piece = chessBoard.getPiece(pos);
                 if (piece == null) {
                     System.out.print("   "); // three spaces for empty squares to match piece width
-                } else {
-                    drawPiece(piece);
-                }
+                } continue;
             }
             System.out.print(" ");
             printColumnNumber(row);

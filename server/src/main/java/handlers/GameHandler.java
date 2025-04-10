@@ -24,11 +24,9 @@ public class GameHandler {
 
         String gameName = null;
         try {
-            // Get the body of the request and parse it as a JSON object
             String requestBody = req.body();
             JsonObject jsonBody = JsonParser.parseString(requestBody).getAsJsonObject();
 
-            // Get the value of "gameName" from the JSON object
             if (jsonBody.has("gameName")) {
                 gameName = jsonBody.get("gameName").getAsString();
             } else {

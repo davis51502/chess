@@ -282,45 +282,47 @@ public class GameState {
     }
 
     private void joinGameCommand(String[] command) throws Exception {
-        if (gameList == null) {
-            throw new IllegalArgumentException("Please list games before joining any");
-        }
-        if (command.length != 3) {
-            throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
-        }
+        if (gameList != null) {
+            if (command.length == 3) {
+                int gameNumber = Integer.parseInt(command[1]);
 
-        int gameNumber = Integer.parseInt(command[1]);
+                // Check arguments
+                if (!(gameNumber >= 1 && gameNumber <= gameList.size())) {
+                    throw new IllegalArgumentException("Invalid game ID");
+                }
+                if (!(command[2].equalsIgnoreCase("WHITE") || command[2].equalsIgnoreCase("BLACK"))) {
+                    throw new IllegalArgumentException("Invalid color");
+                }
 
-        // Check arguments
-        if (!(gameNumber >= 1 && gameNumber <= gameList.size())) {
-            throw new IllegalArgumentException("Invalid game ID");
-        }
-        if (!(command[2].equalsIgnoreCase("WHITE") || command[2].equalsIgnoreCase("BLACK"))) {
-            throw new IllegalArgumentException("Invalid color");
-        }
+                GameData game = gameList.get(gameNumber - 1);
+                gameID = game.getGameID();
 
-        GameData game = gameList.get(gameNumber - 1);
-        gameID = game.getGameID();
+                ChessGame.TeamColor teamColor = command[2].equalsIgnoreCase("WHITE")
+                        ? ChessGame.TeamColor.WHITE
+                        : ChessGame.TeamColor.BLACK;
+                if (
+                        (teamColor == ChessGame.TeamColor.WHITE && game.getWhiteUsername() != null
+                                && game.getWhiteUsername().equalsIgnoreCase(username))
+                                || (teamColor == ChessGame.TeamColor.BLACK && game.getBlackUsername() != null
+                                && game.getBlackUsername().equalsIgnoreCase(username))
+                ) {
+                    serverFacade.joinGameWS(new GameJoinRequest(command[2].toUpperCase(), gameID));
+                } else if (
+                        (teamColor == ChessGame.TeamColor.WHITE
+                                && game.getWhiteUsername() != null)
+                                || (teamColor == ChessGame.TeamColor.BLACK
+                                && game.getBlackUsername() != null)
+                ) {
+                    throw new IllegalArgumentException("Color already taken");
+                } else {
+                    serverFacade.joinGame(new GameJoinRequest(command[2].toUpperCase(), gameID));
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
+            }
 
-        ChessGame.TeamColor teamColor = command[2].equalsIgnoreCase("WHITE")
-                ? ChessGame.TeamColor.WHITE
-                : ChessGame.TeamColor.BLACK;
-        if (
-                (teamColor == ChessGame.TeamColor.WHITE && game.getWhiteUsername() != null
-                        && game.getWhiteUsername().equalsIgnoreCase(username))
-                        || (teamColor == ChessGame.TeamColor.BLACK && game.getBlackUsername() != null
-                        && game.getBlackUsername().equalsIgnoreCase(username))
-        ) {
-            serverFacade.joinGameWS(new GameJoinRequest(command[2].toUpperCase(), gameID));
-        } else if (
-                (teamColor == ChessGame.TeamColor.WHITE
-                        && game.getWhiteUsername() != null)
-                        || (teamColor == ChessGame.TeamColor.BLACK
-                        && game.getBlackUsername() != null)
-        ) {
-            throw new IllegalArgumentException("Color already taken");
         } else {
-            serverFacade.joinGame(new GameJoinRequest(command[2].toUpperCase(), gameID));
+            throw new IllegalArgumentException("Please list games before joining any");
         }
     }
 
