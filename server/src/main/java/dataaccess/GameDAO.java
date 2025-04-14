@@ -20,6 +20,9 @@ public class GameDAO {
     private Gson gson = new GsonBuilder()
             .registerTypeAdapter(ChessGame.class, new ChessGameDeserializer())
             .create();
+
+    // Clears all games from the database
+    // returns 1 if successful, error code if otherwise
     public int clear() {
         try {
             try (var conn = DatabaseManager.getConnection()) {
@@ -29,25 +32,26 @@ public class GameDAO {
             }
             return 1; // Success
         } catch (Exception e) {
-            return -1;
+            return -1; // Error (Codes will be updated when adding the database)
         }
     }
 
     public GameData createGame(String gameName) {
         GameData game = new GameData(
-                0,
+                0,          // Temp id
                 null,
                 null, gameName,
                 new ChessGame());
 
         try (var conn = DatabaseManager.getConnection()) {
-            String query = "INSERT INTO game_data (gameName, whiteUsername, blackUsername, game) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO game_data (gameName, whiteUsername, blackUsername, gameOver, game) VALUES (?, ?, ?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, gameName);
-                preparedStatement.setString(2, null); // White username
-                preparedStatement.setString(3, null); // Black username
+                preparedStatement.setString(2, null); // White username (initially null)
+                preparedStatement.setString(3, null); // Black username (initially null)
+                preparedStatement.setString(4, "0");  // Game over, starts 0
                 String gameJson = gson.toJson(game.getGame());
-                preparedStatement.setString(4, gameJson);
+                preparedStatement.setString(5, gameJson);
 
                 game.setGameID(getGeneratedGameID(preparedStatement));
             }
@@ -64,11 +68,12 @@ public class GameDAO {
         if (affectedRows > 0) {
             try (var generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
+                    // Return the auto-generated game ID
                     return generatedKeys.getInt(1);
                 }
             }
         }
-        return -1;
+        return -1; // Return -1 if no generated keys
     }
 
     public GameData getGame(int gameId) throws DataAccessException {
@@ -89,6 +94,7 @@ public class GameDAO {
                                 resultSet.getString("gameName"),
                                 chessGame
                         );
+                        game.setGameOver(resultSet.getBoolean("gameOver"));
                     }
                 }
             }
@@ -125,14 +131,15 @@ public class GameDAO {
 
     public void updateGame(GameData game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            String query = "UPDATE game_data SET gameName = ?, whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
+            String query = "UPDATE game_data SET gameName = ?, whiteUsername = ?, blackUsername = ?, gameOver = ?, game = ? WHERE gameID = ?";
             try (var preparedStatement = conn.prepareStatement(query)) {
                 preparedStatement.setString(1, game.getGameName());
                 preparedStatement.setString(2, game.getWhiteUsername());
                 preparedStatement.setString(3, game.getBlackUsername());
+                preparedStatement.setString(4, game.getGameOver() ? "1" : "0");
                 String gameJson = gson.toJson(game.getGame());
-                preparedStatement.setString(4, gameJson);
-                preparedStatement.setInt(5, game.getGameID());
+                preparedStatement.setString(5, gameJson);
+                preparedStatement.setInt(6, game.getGameID());
 
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected == 0) {
