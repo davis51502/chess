@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 import model.*;
 
 import java.util.List;
@@ -27,6 +24,7 @@ public class GameState {
     private Boolean suppressNextOutput = false;
     private Boolean printInGame = false;
     private String username;
+    private boolean resignedOnce = false;
 
     public GameState() {
         currentState = State.LOGGED_OUT;
@@ -282,47 +280,46 @@ public class GameState {
     }
 
     private void joinGameCommand(String[] command) throws Exception {
-        if (gameList != null) {
-            if (command.length == 3) {
-                int gameNumber = Integer.parseInt(command[1]);
-
-                // Check arguments
-                if (!(gameNumber >= 1 && gameNumber <= gameList.size())) {
-                    throw new IllegalArgumentException("Invalid game ID");
-                }
-                if (!(command[2].equalsIgnoreCase("WHITE") || command[2].equalsIgnoreCase("BLACK"))) {
-                    throw new IllegalArgumentException("Invalid color");
-                }
-
-                GameData game = gameList.get(gameNumber - 1);
-                gameID = game.getGameID();
-
-                ChessGame.TeamColor teamColor = command[2].equalsIgnoreCase("WHITE")
-                        ? ChessGame.TeamColor.WHITE
-                        : ChessGame.TeamColor.BLACK;
-                if (
-                        (teamColor == ChessGame.TeamColor.WHITE && game.getWhiteUsername() != null
-                                && game.getWhiteUsername().equalsIgnoreCase(username))
-                                || (teamColor == ChessGame.TeamColor.BLACK && game.getBlackUsername() != null
-                                && game.getBlackUsername().equalsIgnoreCase(username))
-                ) {
-                    serverFacade.joinGameWS(new GameJoinRequest(command[2].toUpperCase(), gameID));
-                } else if (
-                        (teamColor == ChessGame.TeamColor.WHITE
-                                && game.getWhiteUsername() != null)
-                                || (teamColor == ChessGame.TeamColor.BLACK
-                                && game.getBlackUsername() != null)
-                ) {
-                    throw new IllegalArgumentException("Color already taken");
-                } else {
-                    serverFacade.joinGame(new GameJoinRequest(command[2].toUpperCase(), gameID));
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
-            }
-
-        } else {
+        if (gameList == null) {
             throw new IllegalArgumentException("Please list games before joining any");
+        }
+        if (command.length != 3) {
+            throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
+        }
+
+        int gameNumber = Integer.parseInt(command[1]);
+
+        // Check arguments
+        if (!(gameNumber >= 1 && gameNumber <= gameList.size())) {
+            throw new IllegalArgumentException("Invalid game ID");
+        }
+        if (!(command[2].equalsIgnoreCase("WHITE") || command[2].equalsIgnoreCase("BLACK"))) {
+            throw new IllegalArgumentException("Invalid color");
+        }
+
+        GameData game = gameList.get(gameNumber - 1);
+        gameID = game.getGameID();
+
+        ChessGame.TeamColor teamColor = command[2].equalsIgnoreCase("WHITE")
+                ? ChessGame.TeamColor.WHITE
+                : ChessGame.TeamColor.BLACK;
+        if (
+                (teamColor == ChessGame.TeamColor.WHITE && game.getWhiteUsername() != null
+                        && game.getWhiteUsername().equalsIgnoreCase(username))
+                        || (teamColor == ChessGame.TeamColor.BLACK && game.getBlackUsername() != null
+                        && game.getBlackUsername().equalsIgnoreCase(username))
+        ) {
+            // User is already in game, let them join
+            serverFacade.joinGameWS(new GameJoinRequest(command[2].toUpperCase(), gameID));
+        } else if (
+                (teamColor == ChessGame.TeamColor.WHITE
+                        && game.getWhiteUsername() != null)
+                        || (teamColor == ChessGame.TeamColor.BLACK
+                        && game.getBlackUsername() != null)
+        ) {
+            throw new IllegalArgumentException("Color already taken");
+        } else {
+            serverFacade.joinGame(new GameJoinRequest(command[2].toUpperCase(), gameID));
         }
     }
 
@@ -330,14 +327,17 @@ public class GameState {
         try {
             switch (command[0].toLowerCase()) {
                 case "help":
+                    resignedOnce = false;
                     printInGameHelp();
                     printInGame = true;
                     break;
                 case "redraw":
+                    resignedOnce = false;
                     serverFacade.redrawBoard();
                     printInGame = true;
                     break;
                 case "highlight":
+                    resignedOnce = false;
                     if (command.length != 2) {
                         throw new IllegalArgumentException("Invalid number of arguments. Expected 2 arguments.");
                     }
@@ -347,21 +347,46 @@ public class GameState {
                     printInGame = true;
                     break;
                 case "move":
-                    if (command.length != 3) {
+                    resignedOnce = false;
+                    if (command.length < 3 || command.length > 4) {
                         throw new IllegalArgumentException("Invalid number of arguments. Expected 3 arguments.");
                     }
                     ChessPosition moveStart = parseChessPosition(command[1]);
                     ChessPosition moveEnd = parseChessPosition(command[2]);
 
-                    serverFacade.makeMove(new ChessMove(moveStart, moveEnd, null), gameID);
-                    printInGame = true;
+                    ChessPiece.PieceType promotion = null;
+                    if (command.length == 4) {
+                        switch (command[3].toLowerCase()) {
+                            case "q":
+                                promotion = ChessPiece.PieceType.QUEEN;
+                                break;
+                            case "r":
+                                promotion = ChessPiece.PieceType.ROOK;
+                                break;
+                            case "b":
+                                promotion = ChessPiece.PieceType.BISHOP;
+                                break;
+                            case "k":
+                                promotion = ChessPiece.PieceType.KING;
+                                break;
+                        }
+                    }
+
+                    serverFacade.makeMove(new ChessMove(moveStart, moveEnd, promotion), gameID);
                     break;
                 case "leave":
+                    resignedOnce = false;
                     serverFacade.leaveGame(gameID);
                     currentState = State.LOGGED_IN;
                     break;
                 case "resign":
-                    serverFacade.resignGame(gameID);
+                    if(!resignedOnce){
+                        System.out.println("Type resign again to resign the game");
+                        resignedOnce = true;
+                        printInGame = true;
+                    } else {
+                        serverFacade.resignGame(gameID);
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid command");
