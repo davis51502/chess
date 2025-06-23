@@ -10,7 +10,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    public ChessPiece.PieceType type;
+    public ChessGame.TeamColor color;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.color = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -47,6 +52,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        PieceMovesCalculator pieceMovesCalc = new PieceMovesCalculator(this.color, this.type);
+        return pieceMovesCalc.pieceMoves(board, myPosition);
     }
 }
