@@ -14,8 +14,15 @@ public class QueenMovesCalculator {
 
         int startRow = myPosition.getRow();
         int startCol = myPosition.getColumn();
-
         allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, 1, 0, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, -1, 0, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, 0, 1, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, 0, -1, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, 1, 1, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, 1, -1, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, -1, -1, pieceColor));
+        allQueenMoves.addAll(PieceMovesCalculator.straightLiner(startRow, startCol, board, -1, 1, pieceColor));
 
+        return allQueenMoves;
     }
 }

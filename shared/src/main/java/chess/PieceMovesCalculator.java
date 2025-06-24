@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class PieceMovesCalculator {
+    public ChessGame.TeamColor color;
+    public ChessPiece.PieceType type;
 
-    public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) throws InvalidMoveException {
+    public PieceMovesCalculator(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type){
+        this.color = pieceColor;
+        this.type = type;
+    }
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition)  {
         // get the piece at the given position
         ChessPiece piece = board.getPiece(myPosition);
         return switch (piece.getPieceType()) {
             case KING -> new KingMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
-            case QUEEN -> new QueenMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition, allQueenMoves);
+            case QUEEN -> new QueenMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
             case BISHOP -> new BishopMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
             case KNIGHT -> new KnightMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
             case ROOK -> new RookMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
             case PAWN -> new PawnMovesCalculator(piece.getTeamColor()).pieceMoves(board, myPosition);
-            default -> throw new InvalidMoveException("Unknown piece type:" + piece.getPieceType());
         };
     }
     // "map checker": checks if a spot is actually on a chess board
@@ -35,7 +40,8 @@ public class PieceMovesCalculator {
             } else { // else there's a piece there, we can capture it
                 if (pieceTarget.getTeamColor() != pieceColor) {
                     movesFound.add(new ChessMove(new ChessPosition(startRow, startCol), targetPosition, null));
-                } break; // break- if it's an enemy or friendly, we can't move the piece through it
+                }
+                break; // break- if it's an enemy or friendly, we can't move the piece through it
             }
             currentRow += rowChange;
             currentCol += colChange;

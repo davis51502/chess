@@ -8,5 +8,6 @@ public class KnightMovesCalculator {
     }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        return null;
     }
 }
