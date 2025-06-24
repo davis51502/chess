@@ -25,7 +25,7 @@ public class PieceMovesCalculator {
     }
     // "map checker": checks if a spot is actually on a chess board
     public static boolean isinBounds(int row, int col) {
-        return row >= 1 && row <=8 && col >= 1 && col <=8;
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
     // "straight liner": (good for bishops rooks and queen) straight line in one direction, goes step by step until it hits the edge of the board or another piece
     public static Collection<ChessMove> straightLiner(int startRow, int startCol, ChessBoard board, int rowChange, int colChange, ChessGame.TeamColor pieceColor) {
