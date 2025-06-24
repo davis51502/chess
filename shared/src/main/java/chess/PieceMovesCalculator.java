@@ -32,12 +32,18 @@ public class PieceMovesCalculator {
         int currentRow = startRow + rowChange;
         int currentCol = startCol + colChange;
         while (isinBounds(currentRow, currentCol)) {
-            // target position
-            // piece at the target position
-            // if the square is empty, good, we can move it there
-            // else theres a piece there, we can capture it
-            // break- if its an enemy or friendly, we can't move the piece through it
-            // then restart the process and move piece to the next square for the next check
+            ChessPosition targetPosition = new ChessPosition(currentRow, currentCol); // target position
+            ChessPiece pieceTarget = board.getPiece(targetPosition); // piece at the target position
+            if (pieceTarget == null) { // if the square is empty, move it there
+                movesFound.add(new ChessMove(new ChessPosition(startRow, startCol), targetPosition, null));
+            } else { // else there's a piece there, we can capture it
+                if (pieceTarget.getTeamColor() != pieceColor) {
+                    movesFound.add(new ChessMove(new ChessPosition(startRow, startCol), targetPosition, null));
+                } break; // break- if it's an enemy or friendly, we can't move the piece through it
+            }
+            currentRow += rowChange;
+            currentCol += colChange;
+            // then restart the process and move the piece to the next square for the next check
         }
         // return all moves that were found here right outside of while loop
         return movesFound;
