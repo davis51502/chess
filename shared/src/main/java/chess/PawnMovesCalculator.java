@@ -12,7 +12,7 @@ public class PawnMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> allPawnMoves = new ArrayList<>();
         int startRow = myPosition.getRow();
-        int startCol = myPosition.getRow();
+        int startCol = myPosition.getColumn();
 
         int forwardMove;
         int startingRow;
@@ -25,6 +25,48 @@ public class PawnMovesCalculator {
             forwardMove = -1;
             startingRow = 7;
             promotionRow = 1;
+        }
+        // 1 - forward one square
+        int oneStepRow = startRow + forwardMove; // 2 + 1 for white; 7-1 for black
+        int targetCol = startCol;
+        // check if square is one step ahead on board
+        if (PieceMovesCalculator.isinBounds(oneStepRow, targetCol)) {
+            ChessPosition oneStep = new ChessPosition(oneStepRow, targetCol);
+
+            if (board.getPiece(oneStep) == null) {
+                if (oneStepRow == promotionRow) {
+                    addPromotion(myPosition, oneStep, allPawnMoves);
+                } else {
+                    allPawnMoves.add(new ChessMove(myPosition, oneStep, null));
+                }
+                // 2 - forward two squares
+                if (startRow == startingRow) {
+                    int twoSteps = startRow + (2 * forwardMove);
+                    if (PieceMovesCalculator.isinBounds(twoSteps, targetCol)) {
+                        ChessPosition twoStepsPos = new ChessPosition(twoSteps, targetCol);
+                        if (board.getPiece(twoStepsPos) == null) {
+                            allPawnMoves.add(new ChessMove(myPosition, twoStepsPos, null));
+                        }
+                    }
+                }
+            }
+        }
+        // 3 - Diagonal capture moves
+        int[] diagonalColChange = {-1, 1}; // column changing by -1 (left) or 1 (right)
+        for (int colChange: diagonalColChange) {
+            int captureRow = startRow + forwardMove;
+            int captureCol = startCol + colChange;
+
+            if (PieceMovesCalculator.isinBounds(captureRow, captureCol)) {
+                ChessPosition capturePos = new ChessPosition(captureRow, captureCol);
+                ChessPiece pieceAtCapture = board.getPiece(capturePos);
+                if (pieceAtCapture != null && pieceAtCapture.getTeamColor() != pieceColor) {
+                    if (captureRow == promotionRow) {
+                        addPromotion(myPosition, capturePos, allPawnMoves);
+                    } else {allPawnMoves.add(new ChessMove(myPosition, capturePos, null));
+                    }
+                }
+            }
         }
         return allPawnMoves;
     }
