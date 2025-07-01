@@ -70,7 +70,7 @@ public class PawnMovesCalculator {
         }
         return allPawnMoves;
     }
-    private void addPromotion(ChessPosition start, ChessPosition end, Collection<ChessMove> movesCollector) {
+    public void addPromotion(ChessPosition start, ChessPosition end, Collection<ChessMove> movesCollector) {
         movesCollector.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));
         movesCollector.add(new ChessMove(start, end, ChessPiece.PieceType.ROOK));
         movesCollector.add(new ChessMove(start, end, ChessPiece.PieceType.BISHOP));

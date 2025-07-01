@@ -70,6 +70,12 @@ public class ChessGame {
         for (ChessMove move : potentialMoves) {
             // make deep copy of board to simulate the move
             ChessBoard simulatedBoard = board.copy();
+            ChessPiece movingPiece = simulatedBoard.getPiece(move.getStartPosition());
+            simulatedBoard.removePiece(move.getStartPosition());
+            // handle promotion
+            if (move.getPromotionPiece() != null) {
+                simulatedBoard.addPiece(move.getEndPosition());
+            }
         }
     }
 
