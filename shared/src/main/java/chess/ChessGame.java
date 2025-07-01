@@ -55,13 +55,22 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
+        // Make sure valid piece is there and its the right teams turn
         if (piece == null) {
             return null;
         }
-        // get all the possible moves for piece
+        if (piece.getTeamColor() != this.teamTurn) {
+            return null;
+        }
+        // 1: get all the possible moves for piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
         Set<ChessMove> authMoves = new HashSet<>();
 
+        // 2: filter out moves that leave the king in check
+        for (ChessMove move : potentialMoves) {
+            // make deep copy of board to simulate the move
+            ChessBoard simulatedBoard = board.copy();
+        }
     }
 
     /**

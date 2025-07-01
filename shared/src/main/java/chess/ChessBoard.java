@@ -78,4 +78,14 @@ public class ChessBoard {
                 "pieces=" + Arrays.toString(pieces) +
                 '}';
     }
+
+    public ChessBoard copy() {
+        ChessBoard newBoard = new ChessBoard();
+        for (int i= 0; i <8; i++) {
+            for (int j= 0; j<8; j++) {
+                newBoard.pieces[i][j] = this.pieces[i][j];
+            }
+        }
+        return newBoard;
+    }
 }
