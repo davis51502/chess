@@ -62,10 +62,10 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         // Make sure valid piece is there and its the right teams turn
         if (piece == null) {
-            return null;
+            return new ArrayList<>();
         }
         if (piece.getTeamColor() != this.teamTurn) {
-            return null;
+            return new ArrayList<>();
         }
         // 1: get all the possible moves for piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
@@ -166,7 +166,23 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        for (int i = 1; i <=8; i++) {
+            for (int j=1; j<=8; j++) {
+                ChessPosition currentPos = new ChessPosition(i,j);
+                ChessPiece piece = board.getPiece(currentPos);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    // return moves that don't leave king in check
+                    Collection<ChessMove> moves = validMoves(currentPos);
+                    if (moves != null && !moves.isEmpty()) {
+                        return false; // found a valid move since it's not null nor empty
+                    }
+                }
+            }
+        }
+        return true; // in check and has no valid moves
     }
 
     /**
@@ -177,7 +193,23 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false; // in check so it can't be stalemate
+        }
+        for (int i = 1; i <=8; i++) {
+            for (int j=1; j<=8; j++) {
+                ChessPosition currentPos = new ChessPosition(i,j);
+                ChessPiece piece = board.getPiece(currentPos);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    // return moves that don't leave king in check
+                    Collection<ChessMove> moves = validMoves(currentPos);
+                    if (moves != null && !moves.isEmpty()) {
+                        return false; // found a valid move since its not null nor empty
+                    }
+                }
+            }
+        }
+        return true; // in check and has no valid moves
     }
 
     /**
