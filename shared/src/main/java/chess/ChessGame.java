@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,11 +14,17 @@ import java.util.Set;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
+    private boolean isGameOver = false;
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
         this.teamTurn = TeamColor.WHITE;
+    }
+
+    public ChessGame(TeamColor teamTurn, ChessBoard simulatedBoard) {
+        this.teamTurn = teamTurn;
+        this.board = simulatedBoard;
     }
 
     /**
@@ -64,19 +71,19 @@ public class ChessGame {
         }
         // 1: get all the possible moves for piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
-        Set<ChessMove> authMoves = new HashSet<>();
+        Collection<ChessMove> authMoves = new ArrayList<>();
 
         // 2: filter out moves that leave the king in check
         for (ChessMove move : potentialMoves) {
             // make deep copy of board to simulate the move
-            ChessBoard simulatedBoard = board.copy();
-            ChessPiece movingPiece = simulatedBoard.getPiece(move.getStartPosition());
-            simulatedBoard.removePiece(move.getStartPosition());
-            // handle promotion
-            if (move.getPromotionPiece() != null) {
-                simulatedBoard.addPiece(move.getEndPosition());
-            }
+            ChessBoard simulatedBoard = this.board.copy();
+            simulatedBoard.addPiece(move.getStartPosition(), null);
+            simulatedBoard.addPiece(move.getEndPosition(), piece);
+            ChessGame fakeGame = new ChessGame(this.teamTurn, simulatedBoard);
         }
+    }
+    private ChessGame fakeMove(ChessMove move, ChessPiece movedPiece) {
+        ChessBoard copyBoard = board.copy(this.board);
     }
 
     /**
