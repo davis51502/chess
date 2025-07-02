@@ -97,7 +97,29 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> possibleMoves = validMoves(move.getStartPosition());
+        if (possibleMoves == null || !possibleMoves.contains(move)) {
+            throw new InvalidMoveException("Invalid move: Not a legal move for piece/current team!");
+        }
+        ChessPiece pieceToMove = board.getPiece(move.getStartPosition());
+        if (pieceToMove == null) {
+            throw new InvalidMoveException("Invalid Move: No piece at start position!");
+        }
+        if (pieceToMove.getTeamColor() != this.teamTurn) {
+            throw new InvalidMoveException("Invalid Move: its not your turn to move that piece!");
+        }
+        // make move on board
+        board.addPiece(move.getEndPosition(), pieceToMove);
+        board.addPiece(move.getStartPosition(), null);
+        // pawn promotion handler
+        if (move.getPromotionPiece() != null) {
+            ChessPiece promotePiece = new ChessPiece(pieceToMove.getTeamColor(), move.getPromotionPiece());
+            board.addPiece(move.getEndPosition(), promotePiece);
+        }
+        // enpassant and castling here?
+        // switch teams
+        this.teamTurn = (this.teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+
     }
 
     /**
@@ -137,7 +159,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -146,6 +168,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return this.board;
     }
 }
