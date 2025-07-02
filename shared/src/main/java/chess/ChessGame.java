@@ -77,13 +77,17 @@ public class ChessGame {
         for (ChessMove move : potentialMoves) {
             // make deep copy of board to simulate the move
             ChessBoard simulatedBoard = this.board.copy();
+            // make a simulated move from starting position to end position
             simulatedBoard.addPiece(move.getStartPosition(), null);
             simulatedBoard.addPiece(move.getEndPosition(), piece);
+            // create temporary ChessGame to check state after the move
             ChessGame fakeGame = new ChessGame(this.teamTurn, simulatedBoard);
+            // check if current team's king is in check after simulated move
+            if (!fakeGame.isInCheck(this.teamTurn)) {
+                authMoves.add(move); // if king isn't in check, its a valid move
+            }
         }
-    }
-    private ChessGame fakeMove(ChessMove move, ChessPiece movedPiece) {
-        ChessBoard copyBoard = board.copy(this.board);
+        return authMoves;
     }
 
     /**
