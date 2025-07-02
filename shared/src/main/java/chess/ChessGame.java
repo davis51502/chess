@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -44,6 +41,7 @@ public class ChessGame {
 
         this.teamTurn = team;
     }
+
 
     /**
      * Enum identifying the 2 possible teams in a chess game
@@ -129,7 +127,36 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = null;
+        for (int i =1; i<=8; i++ ) {
+            for (int j=1; j<=8; j++) {
+                ChessPosition currentPos = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(currentPos);
+                if (piece!= null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    kingPosition = currentPos;
+                    break;
+                }
+            }
+            if (kingPosition != null) {
+                break;
+            }
+        }
+        for (int k = 1;k<=8; k++) {
+            for (int m =1; m<=8; m++) {
+                ChessPosition currentPos = new ChessPosition(k,m);
+                ChessPiece piece = board.getPiece(currentPos);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> oppMoves = piece.pieceMoves(board, currentPos);
+                    // check if any moves target king
+                    for (ChessMove move : oppMoves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true; // king is in check
+                        }
+                    }
+                }
+            }
+        }
+        return false; // king isn't in check
     }
 
     /**
@@ -169,5 +196,28 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return isGameOver == chessGame.isGameOver && Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn, isGameOver);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", teamTurn=" + teamTurn +
+                ", isGameOver=" + isGameOver +
+                '}';
     }
 }
