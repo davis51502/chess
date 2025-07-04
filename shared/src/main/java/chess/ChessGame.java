@@ -64,9 +64,7 @@ public class ChessGame {
         if (piece == null) {
             return new ArrayList<>();
         }
-        if (piece.getTeamColor() != this.teamTurn) {
-            return new ArrayList<>();
-        }
+
         // 1: get all the possible moves for piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> authMoves = new ArrayList<>();
@@ -75,9 +73,15 @@ public class ChessGame {
         for (ChessMove move : potentialMoves) {
             // make deep copy of board to simulate the move
             ChessBoard simulatedBoard = this.board.copy();
+            ChessPiece movingPiece = simulatedBoard.getPiece(move.getStartPosition());
             // make a simulated move from starting position to end position
             simulatedBoard.addPiece(move.getStartPosition(), null);
-            simulatedBoard.addPiece(move.getEndPosition(), piece);
+            if (move.getPromotionPiece() != null) {
+                ChessPiece promotedPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+                simulatedBoard.addPiece(move.getEndPosition(), promotedPiece);
+            } else {
+                simulatedBoard.addPiece(move.getEndPosition(), movingPiece);
+            }
             // create temporary ChessGame to check state after the move
             ChessGame fakeGame = new ChessGame(this.teamTurn, simulatedBoard);
             // check if current team's king is in check after simulated move
@@ -132,7 +136,7 @@ public class ChessGame {
             for (int j=1; j<=8; j++) {
                 ChessPosition currentPos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(currentPos);
-                if (piece!= null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                     kingPosition = currentPos;
                     break;
                 }
@@ -140,6 +144,7 @@ public class ChessGame {
             if (kingPosition != null) {
                 break;
             }
+
         }
         for (int k = 1;k<=8; k++) {
             for (int m =1; m<=8; m++) {
