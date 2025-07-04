@@ -83,9 +83,9 @@ public class ChessGame {
                 simulatedBoard.addPiece(move.getEndPosition(), movingPiece);
             }
             // create temporary ChessGame to check state after the move
-            ChessGame fakeGame = new ChessGame(this.teamTurn, simulatedBoard);
+            ChessGame fakeGame = new ChessGame(piece.getTeamColor(), simulatedBoard);
             // check if current team's king is in check after simulated move
-            if (!fakeGame.isInCheck(this.teamTurn)) {
+            if (!fakeGame.isInCheck(piece.getTeamColor())) {
                 authMoves.add(move); // if king isn't in check, its a valid move
             }
         }
