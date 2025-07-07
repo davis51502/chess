@@ -26,46 +26,65 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public UserData getUser(String username) {
-        return users.get(username);
+        try {
+            return users.get(username);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public AuthData createAuth(String username) throws DataAccessException {
-        return null;
+    public AuthData createAuth(String username)  {
+        AuthData authData = new AuthData(UUID.randomUUID().toString(), username);
+        authTokens.put(UUID.randomUUID().toString(), authData);
+        return authData;
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
-        return null;
+    public AuthData getAuth(String authToken)  {
+        return authTokens.get(authToken);
     }
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException {
-
+    public void deleteAuth(String authToken)  {
+        try {
+            authTokens.remove(authToken);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public int createGame(String gameName) throws DataAccessException {
-        return 0;
+    public int createGame(String gameName)  {
+        int id = gameIdCounter++;
+        games.put(gameIdCounter++, new GameData(id, null, null, gameName));
+        return id;
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
-        return null;
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+    public Collection<GameData> listGames()  {
+        return games.values();
     }
 
     @Override
-    public void updateGame(GameData game) throws DataAccessException {
-
+    public void updateGame(GameData game)  {
+        try {
+            games.put(game.gameID(), game);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void clear() throws DataAccessException {
-
+    public void clear()  {
+        users.clear();
+        authTokens.clear();
+        games.clear();
+        gameIdCounter = 1;
     }
 }
