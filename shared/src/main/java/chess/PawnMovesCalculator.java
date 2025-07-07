@@ -58,7 +58,8 @@ public class PawnMovesCalculator {
         return allPawnMoves;
     }
 
-    private static void boundChecker(ChessBoard board, ChessPosition myPosition, int startRow, int forwardMove, int targetCol, Collection<ChessMove> allPawnMoves) {
+    private static void boundChecker
+            (ChessBoard board, ChessPosition myPosition, int startRow, int forwardMove, int targetCol, Collection<ChessMove> allPawnMoves) {
         int twoSteps = startRow + (2 * forwardMove);
         if (PieceMovesCalculator.isinBounds(twoSteps, targetCol)) {
             ChessPosition twoStepsPos = new ChessPosition(twoSteps, targetCol);
