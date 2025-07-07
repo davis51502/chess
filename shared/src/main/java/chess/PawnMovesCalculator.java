@@ -34,16 +34,10 @@ public class PawnMovesCalculator {
             ChessPosition oneStep = new ChessPosition(oneStepRow, targetCol);
 
             if (board.getPiece(oneStep) == null) {
-                addCapture(myPosition, oneStepRow, promotionRow, oneStep, allPawnMoves);
+                addCap(myPosition, oneStepRow, promotionRow, oneStep, allPawnMoves);
                 // 2 - forward two squares
                 if (startRow == startingRow) {
-                    int twoSteps = startRow + (2 * forwardMove);
-                    if (PieceMovesCalculator.isinBounds(twoSteps, targetCol)) {
-                        ChessPosition twoStepsPos = new ChessPosition(twoSteps, targetCol);
-                        if (board.getPiece(twoStepsPos) == null) {
-                            allPawnMoves.add(new ChessMove(myPosition, twoStepsPos, null));
-                        }
-                    }
+                    boundChecker(board, myPosition, startRow, forwardMove, targetCol, allPawnMoves);
                 }
             }
         }
@@ -57,14 +51,24 @@ public class PawnMovesCalculator {
                 ChessPosition capturePos = new ChessPosition(captureRow, captureCol);
                 ChessPiece pieceAtCapture = board.getPiece(capturePos);
                 if (pieceAtCapture != null && pieceAtCapture.getTeamColor() != pieceColor) {
-                    addCapture(myPosition, captureRow, promotionRow, capturePos, allPawnMoves);
+                    addCap(myPosition, captureRow, promotionRow, capturePos, allPawnMoves);
                 }
             }
         }
         return allPawnMoves;
     }
 
-    private void addCapture(ChessPosition myPosition, int captureRow, int promotionRow, ChessPosition capturePos, Collection<ChessMove> allPawnMoves) {
+    private static void boundChecker(ChessBoard board, ChessPosition myPosition, int startRow, int forwardMove, int targetCol, Collection<ChessMove> allPawnMoves) {
+        int twoSteps = startRow + (2 * forwardMove);
+        if (PieceMovesCalculator.isinBounds(twoSteps, targetCol)) {
+            ChessPosition twoStepsPos = new ChessPosition(twoSteps, targetCol);
+            if (board.getPiece(twoStepsPos) == null) {
+                allPawnMoves.add(new ChessMove(myPosition, twoStepsPos, null));
+            }
+        }
+    }
+
+    private void addCap(ChessPosition myPosition, int captureRow, int promotionRow, ChessPosition capturePos, Collection<ChessMove> allPawnMoves) {
         if (captureRow == promotionRow) {
             addPromotion(myPosition, capturePos, allPawnMoves);
         } else {

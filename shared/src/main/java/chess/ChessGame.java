@@ -142,16 +142,24 @@ public class ChessGame {
                 if (piece != null && piece.getTeamColor() != teamColor) {
                     Collection<ChessMove> oppMoves = piece.pieceMoves(board, currentPos);
                     // check if any moves target king
-                    for (ChessMove move : oppMoves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true; // king is in check
-                        }
+                    if (oppKing(oppMoves, kingPosition)) {
+                        return true; // king is in check
                     }
                 }
             }
         }
         return false; // king isn't in check
     }
+
+    private static boolean oppKing(Collection<ChessMove> oppMoves, ChessPosition kingPosition) {
+        for (ChessMove move : oppMoves) {
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private ChessPosition findKingPosition(TeamColor teamColor) {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {

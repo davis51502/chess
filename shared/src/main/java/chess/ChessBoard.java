@@ -37,11 +37,6 @@ public class ChessBoard {
         return pieces[position.getRow()-1][position.getColumn()-1];
     }
 
-/*
-    public void removePiece(ChessPosition position) {
-        pieces[position.getRow()-1][position.getColumn()-1] = null;
-    }
-*/
 
     /**
      * Sets the board to the default starting board
