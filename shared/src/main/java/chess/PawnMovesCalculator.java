@@ -34,11 +34,7 @@ public class PawnMovesCalculator {
             ChessPosition oneStep = new ChessPosition(oneStepRow, targetCol);
 
             if (board.getPiece(oneStep) == null) {
-                if (oneStepRow == promotionRow) {
-                    addPromotion(myPosition, oneStep, allPawnMoves);
-                } else {
-                    allPawnMoves.add(new ChessMove(myPosition, oneStep, null));
-                }
+                addCapture(myPosition, oneStepRow, promotionRow, oneStep, allPawnMoves);
                 // 2 - forward two squares
                 if (startRow == startingRow) {
                     int twoSteps = startRow + (2 * forwardMove);
@@ -61,14 +57,19 @@ public class PawnMovesCalculator {
                 ChessPosition capturePos = new ChessPosition(captureRow, captureCol);
                 ChessPiece pieceAtCapture = board.getPiece(capturePos);
                 if (pieceAtCapture != null && pieceAtCapture.getTeamColor() != pieceColor) {
-                    if (captureRow == promotionRow) {
-                        addPromotion(myPosition, capturePos, allPawnMoves);
-                    } else {allPawnMoves.add(new ChessMove(myPosition, capturePos, null));
-                    }
+                    addCapture(myPosition, captureRow, promotionRow, capturePos, allPawnMoves);
                 }
             }
         }
         return allPawnMoves;
+    }
+
+    private void addCapture(ChessPosition myPosition, int captureRow, int promotionRow, ChessPosition capturePos, Collection<ChessMove> allPawnMoves) {
+        if (captureRow == promotionRow) {
+            addPromotion(myPosition, capturePos, allPawnMoves);
+        } else {
+            allPawnMoves.add(new ChessMove(myPosition, capturePos, null));
+        }
     }
     public void addPromotion(ChessPosition start, ChessPosition end, Collection<ChessMove> movesCollector) {
         movesCollector.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));

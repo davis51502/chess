@@ -131,20 +131,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = null;
-        for (int i =1; i<=8; i++ ) {
-            for (int j=1; j<=8; j++) {
-                ChessPosition currentPos = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(currentPos);
-                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                    kingPosition = currentPos;
-                    break;
-                }
-            }
-            if (kingPosition != null) {
-                break;
-            }
-
+        ChessPosition kingPosition = findKingPosition(teamColor);
+        if (kingPosition == null) {
+            return false;
         }
         for (int k = 1;k<=8; k++) {
             for (int m =1; m<=8; m++) {
@@ -163,6 +152,18 @@ public class ChessGame {
         }
         return false; // king isn't in check
     }
+    private ChessPosition findKingPosition(TeamColor teamColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currentPos = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(currentPos);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return currentPos;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Determines if the given team is in checkmate
@@ -174,20 +175,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        for (int i = 1; i <=8; i++) {
-            for (int j=1; j<=8; j++) {
-                ChessPosition currentPos = new ChessPosition(i,j);
-                ChessPiece piece = board.getPiece(currentPos);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    // return moves that don't leave king in check
-                    Collection<ChessMove> moves = validMoves(currentPos);
-                    if (moves != null && !moves.isEmpty()) {
-                        return false; // found a valid move since it's not null nor empty
-                    }
-                }
-            }
-        }
-        return true; // in check and has no valid moves
+        return mimicBoard(teamColor);
     }
 
     /**
@@ -201,6 +189,10 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false; // in check so it can't be stalemate
         }
+        return mimicBoard(teamColor);
+    }
+
+    private boolean mimicBoard(TeamColor teamColor) {
         for (int i = 1; i <=8; i++) {
             for (int j=1; j<=8; j++) {
                 ChessPosition currentPos = new ChessPosition(i,j);

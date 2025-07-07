@@ -37,9 +37,11 @@ public class ChessBoard {
         return pieces[position.getRow()-1][position.getColumn()-1];
     }
 
+/*
     public void removePiece(ChessPosition position) {
         pieces[position.getRow()-1][position.getColumn()-1] = null;
     }
+*/
 
     /**
      * Sets the board to the default starting board
@@ -48,7 +50,10 @@ public class ChessBoard {
     public void resetBoard() {
         pieces = new ChessPiece[8][8];
         ChessPiece.PieceType[] orderedPiece = {
-                ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
+                ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
         };
         // white
         for (int col = 0; col < 8; col++) {
