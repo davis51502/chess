@@ -24,4 +24,28 @@ public class UserService {
         // login the user in the database and return
         return dataAccess.createAuth(usersdata.username());
     }
+    public AuthData login(String username, String password) throws DataAccessException {
+        UserData user = dataAccess.getUser(username);
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            throw new DataAccessException("error: missing user or pw");
+        }
+        if (user == null) {
+            throw new DataAccessException("error: user not found");
+        }
+        if (!user.password().equals(password)) {
+            throw new DataAccessException("error: incorrect pw");
+        }
+        return dataAccess.createAuth(username);
+    }
+
+    public void logout(String authToken) throws DataAccessException {
+        // always verify the input
+        if (authToken == null || authToken.isBlank()) {
+            throw new DataAccessException("error: missing authentication token");
+        }
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Error:not authorized");
+        }
+        dataAccess.deleteAuth(authToken);
+    }
 }
