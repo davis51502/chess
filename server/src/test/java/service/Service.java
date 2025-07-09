@@ -3,18 +3,26 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Service {
     private MemoryDataAccess dataAccess;
+    private UserService userService;
+    private GameService gameService;
+
     @BeforeEach
     public void setup() {
         dataAccess = new MemoryDataAccess();
+        userService = new UserService(dataAccess);
+        gameService = new GameService(dataAccess);
 
     }
     @Test
@@ -85,5 +93,15 @@ public class Service {
         DataAccessException exception = assertThrows(DataAccessException.class,
                 () -> {userservice.logout("error: missing authentication token");});
         assertTrue(exception.getMessage().contains("unauthorized"));
+    }
+    @Test
+    public void listGamesPositive() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+
+        gameService.createGame(auth.authToken(), "test game");
+        Collection<GameData> games = gameService.listGames(auth.authToken());
+        assertEquals(1, games.size());
+        assertTrue(games.stream().anyMatch(game -> "test game".equals(game.gameName())));
     }
 }

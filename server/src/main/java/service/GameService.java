@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import model.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 //  list result. create, join
 public class GameService {
@@ -16,7 +17,9 @@ public class GameService {
         if (dataAccess.getAuth(authToken) == null) {
             throw new DataAccessException("error: unauthorized");
         }
-        return dataAccess.listGames();
+        Collection<GameData> games = dataAccess.listGames();
+        if (games ==null) {return Collections.emptyList();}
+        return games;
     }
     public int createGame(String authToken, String name) throws DataAccessException {
         if (dataAccess.getAuth(authToken) == null) {
@@ -42,7 +45,7 @@ public class GameService {
                     dataAccess.getGame(gameID).blackUsername(), dataAccess.getGame(gameID).gameName());
             dataAccess.updateGame(gameUpdate);
         } else if (gamerColor.equalsIgnoreCase("BLACK")) {
-            if (dataAccess.getGame(gameID).whiteUsername() != null) {
+            if (dataAccess.getGame(gameID).blackUsername() != null) {
                 throw new DataAccessException("error: already in use ");
             }
             GameData gameUpdate = new GameData(gameID, dataAccess.getAuth(authToken).username(),
