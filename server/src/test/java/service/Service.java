@@ -68,6 +68,22 @@ public class Service {
         DataAccessException exception = assertThrows(DataAccessException.class,
                 () -> {userservice.login("test123", "wrongpw");});
         assertTrue(exception.getMessage().contains("incorrect pw"));
+    }
+    @Test
+    public void testLogoutPositive() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        UserService userservice = new UserService(dataAccess);
+        AuthData auth = userservice.register(user);
 
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> {userservice.logout(auth.authToken());});
+        assertTrue(exception.getMessage().contains("unauthorized"));
+    }
+    @Test
+    public void testLogoutNegative() throws DataAccessException {
+        UserService userservice = new UserService(dataAccess);
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> {userservice.logout("error: missing authentication token");});
+        assertTrue(exception.getMessage().contains("unauthorized"));
     }
 }

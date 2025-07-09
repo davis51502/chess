@@ -44,7 +44,7 @@ public class UserService {
             throw new DataAccessException("error: missing authentication token");
         }
         if (dataAccess.getAuth(authToken) == null) {
-            throw new DataAccessException("Error:not authorized");
+            throw new DataAccessException("Error:unauthorized");
         }
         dataAccess.deleteAuth(authToken);
     }
