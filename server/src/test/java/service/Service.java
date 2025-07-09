@@ -15,10 +15,10 @@ public class Service {
     @BeforeEach
     public void setup() {
         dataAccess = new MemoryDataAccess();
-        userService = new UserService(dataAccess);
+
     }
     @Test
-    public void testCreateGetUser() throws DataAccessException {
+    public void testCreateGetUserPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
         dataAccess.createUser(user);
 
@@ -28,14 +28,46 @@ public class Service {
         assertEquals(user.email(), sui.email());
     }
     @Test
-    public void testNonCreateUser() throws DataAccessException {
+    public void testCreateUserNegative() throws DataAccessException {
         UserData user = dataAccess.getUser("nonexistent");
         assertNull(user);
     }
     @Test
-    public void testRegisterYes() throws DataAccessException {
+    public void testRegisterPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
-        AuthData auth =
+        UserService userservice = new UserService(dataAccess);
+        AuthData auth = userservice.register(user);
+        assertNotNull(auth.authToken());
+        assertEquals("test123", auth.username());
     }
+    @Test
+    public void testRegisterNegative() throws DataAccessException {
+        UserData userJuan = new UserData("test123", "test321", "suibacan@gmail.com");
+        UserData userTwo = new UserData("test123", "diff_pw", "sui@gmail.com");
+        UserService userservice = new UserService(dataAccess);
+        userservice.register(userJuan);
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> {userservice.register(userTwo);});
+        assertTrue(exception.getMessage().contains("error: username already exists"));
 
+    }
+    @Test
+    public void testLoginPositive() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        UserService userservice = new UserService(dataAccess);
+        userservice.register(user);
+        AuthData auth = userservice.login("test123", "test321");
+        assertNotNull(auth.authToken());
+        assertEquals("test123", auth.username());
+    }
+    @Test
+    public void testLoginNegative() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        UserService userservice = new UserService(dataAccess);
+        userservice.register(user);
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> {userservice.login("test123", "wrongpw");});
+        assertTrue(exception.getMessage().contains("incorrect pw"));
+
+    }
 }
