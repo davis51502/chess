@@ -58,7 +58,7 @@ public class MemoryDataAccess implements DataAccess {
     @Override
     public int createGame(String gameName)  {
         int id = gameIdCounter++;
-        games.put(gameIdCounter++, new GameData(id, null, null, gameName));
+        games.put(id, new GameData(id, null, null, gameName));
         return id;
     }
 

@@ -80,11 +80,10 @@ public class Service {
     @Test
     public void testLogoutPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
-        UserService userservice = new UserService(dataAccess);
-        AuthData auth = userservice.register(user);
-
+        AuthData auth = userService.register(user);
+        userService.logout(auth.authToken());
         DataAccessException exception = assertThrows(DataAccessException.class,
-                () -> {userservice.logout(auth.authToken());});
+                () -> {userService.logout(auth.authToken());});
         assertTrue(exception.getMessage().contains("unauthorized"));
     }
     @Test
@@ -103,5 +102,52 @@ public class Service {
         Collection<GameData> games = gameService.listGames(auth.authToken());
         assertEquals(1, games.size());
         assertTrue(games.stream().anyMatch(game -> "test game".equals(game.gameName())));
+    }
+    @Test
+    public void listGamesNegative() throws DataAccessException {
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> { gameService.listGames("invalid");});
+        assertTrue(exception.getMessage().contains("unauthorized"));
+    }
+    @Test
+    public void createGamePositive() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+        int gameID = gameService.createGame(auth.authToken(), "test game");
+        assertTrue(gameID >0);
+        GameData game= dataAccess.getGame(gameID);
+        assertEquals("test game", game.gameName());
+        assertNull(game.whiteUsername());
+        assertNull(game.blackUsername());
+
+    }
+    @Test
+    public void createGameNegative() throws DataAccessException {
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> {gameService.createGame("invalid", "test game");});
+        assertTrue(exception.getMessage().contains("error: unauthorized"));
+    }
+    @Test
+    public void joinGameWhite() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+        int gameID = gameService.createGame(auth.authToken(), "test game");
+        gameService.joinGame(auth.authToken(), "WHITE", gameID);
+        GameData game= dataAccess.getGame(gameID);
+        assertEquals(auth.username(), game.whiteUsername());
+        assertNull(game.blackUsername());
+
+    }
+    @Test
+    public void joinGameBlack() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+        int gameID = gameService.createGame(auth.authToken(), "test game");
+        gameService.joinGame(auth.authToken(), "BLACK", gameID);
+        GameData game= dataAccess.getGame(gameID);
+        assertNull(game.whiteUsername());
+        assertEquals(auth.username(), game.blackUsername());
+
+
     }
 }
