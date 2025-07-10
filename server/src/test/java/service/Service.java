@@ -150,4 +150,13 @@ public class Service {
 
 
     }
+    @Test
+    public void testClear() throws DataAccessException {
+        dataAccess.createUser(new UserData("test123", "pass", "email1"));
+        dataAccess.createAuth("test123");
+        dataAccess.createGame("Game 1");
+        dataAccess.clear();
+        assertNull(dataAccess.getUser("test123"));
+        assertTrue(dataAccess.listGames().isEmpty());
+    }
 }
