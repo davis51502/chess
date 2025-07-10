@@ -15,7 +15,7 @@ import java.util.Map;
 public class UserHandler {
     private UserService userService;
     private Gson gson;
-    public UserHandler() {
+    public UserHandler(UserService userService) {
         this.userService = userService;
         this.gson = new Gson();
     }

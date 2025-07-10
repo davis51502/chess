@@ -1,8 +1,11 @@
 package server;
 
+import dataaccess.DataAccess;
+import dataaccess.MemoryDataAccess;
 import handlers.ClearHandler;
 import handlers.GameHandler;
 import handlers.UserHandler;
+import service.*;
 import spark.*;
 
 public class Server {
@@ -11,10 +14,13 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-
-        ClearHandler clearHandler = new ClearHandler();
-        UserHandler userHandler = new UserHandler();
-        GameHandler gameHandler = new GameHandler();
+        DataAccess dataAccess = new MemoryDataAccess();
+        UserService userService = new UserService(dataAccess);
+        GameService gameService = new GameService(dataAccess);
+        ClearService clearService = new ClearService(dataAccess);
+        ClearHandler clearHandler = new ClearHandler(clearService);
+        UserHandler userHandler = new UserHandler(userService);
+        GameHandler gameHandler = new GameHandler(gameService);
 
 
 

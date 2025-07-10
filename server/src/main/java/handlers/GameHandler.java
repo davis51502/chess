@@ -11,7 +11,7 @@ import java.util.Map;
 public class GameHandler {
     private GameService gameService;
     private Gson gson;
-    public GameHandler() {
+    public GameHandler(GameService gameService) {
         this.gameService = gameService;
         this.gson = new Gson();
     }
