@@ -61,13 +61,7 @@ public class UserHandler {
             return gson.toJson(auth);
 
     } catch (DataAccessException e) {
-            if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid")) {
-                res.status(401);
-                return gson.toJson(Map.of("message", "Error: unauthorized"));
-            } else {
-                res.status(500);
-                return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
-            }
+            return errorHandler(res, e);
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -84,16 +78,20 @@ public class UserHandler {
             res.status(200);
             return "{}"; // empty json for valid logout
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid")) {
-                res.status(401);
-                return gson.toJson(Map.of("message", "Error: unauthorized"));
-            } else {
-                res.status(500);
-                return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
-            }
+            return errorHandler(res, e);
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
         }
+
+    public String errorHandler(Response res, DataAccessException e) {
+        if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid")) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "Error: unauthorized"));
+        } else {
+            res.status(500);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        }
     }
+}
