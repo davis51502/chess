@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.handler.ErrorHandler;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -16,7 +15,7 @@ import java.util.Map;
 public class UserHandler {
     private UserService userService;
     private Gson gson;
-    public UserHandler(UserService userService) {
+    public UserHandler() {
         this.userService = userService;
         this.gson = new Gson();
     }

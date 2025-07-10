@@ -2,7 +2,6 @@ package handlers;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.GameData;
 import service.GameService;
 import spark.Request;
 import spark.Response;
@@ -12,7 +11,7 @@ import java.util.Map;
 public class GameHandler {
     private GameService gameService;
     private Gson gson;
-    public GameHandler(GameService gameService) {
+    public GameHandler() {
         this.gameService = gameService;
         this.gson = new Gson();
     }

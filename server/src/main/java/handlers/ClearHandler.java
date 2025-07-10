@@ -11,7 +11,7 @@ import java.util.Map;
 public class ClearHandler {
     private ClearService clearService;
     private Gson gson;
-    public ClearHandler(ClearService clearService) {
+    public ClearHandler() {
         this.clearService = clearService;
         this.gson = new Gson();
     }
