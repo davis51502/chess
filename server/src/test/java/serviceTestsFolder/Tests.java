@@ -13,7 +13,7 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Service {
+public class Tests {
     private MemoryDataAccess dataAccess;
     private UserService userService;
     private GameService gameService;
@@ -40,6 +40,7 @@ public class Service {
         UserData user = dataAccess.getUser("nonexistent");
         assertNull(user);
     }
+    // register
     @Test
     public void testRegisterPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -59,6 +60,7 @@ public class Service {
         assertTrue(exception.getMessage().contains("error: username already exists"));
 
     }
+    // login
     @Test
     public void testLoginPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -77,6 +79,7 @@ public class Service {
                 () -> {userservice.login("test123", "wrongpw");});
         assertTrue(exception.getMessage().contains("unauthorized"));
     }
+    // logout
     @Test
     public void testLogoutPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -93,6 +96,7 @@ public class Service {
                 () -> {userservice.logout("error: missing authentication token");});
         assertTrue(exception.getMessage().contains("unauthorized"));
     }
+    // list games
     @Test
     public void listGamesPositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -109,6 +113,7 @@ public class Service {
                 () -> { gameService.listGames("invalid");});
         assertTrue(exception.getMessage().contains("unauthorized"));
     }
+    // create game
     @Test
     public void createGamePositive() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -127,6 +132,7 @@ public class Service {
                 () -> {gameService.createGame("invalid", "test game");});
         assertTrue(exception.getMessage().contains("error: unauthorized"));
     }
+    // join game
     @Test
     public void joinGameWhite() throws DataAccessException {
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
@@ -162,9 +168,9 @@ public class Service {
         assertTrue(exception.getMessage().contains("error: bad request"));
     }
 
-
+    // clear
     @Test
-    public void testClear() throws DataAccessException {
+    public void testClearPositive() throws DataAccessException {
         dataAccess.createUser(new UserData("test123", "pass", "suibacan@gmail.com"));
         dataAccess.createAuth("test123");
         dataAccess.createGame("Game clear");
