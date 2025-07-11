@@ -27,19 +27,24 @@ public class GameHandler {
             return gson.toJson(Map.of("games", juegos));
 
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid") || e.getMessage().contains("user not found")) {
-                res.status(401);
-                return gson.toJson(Map.of("message", "error: unauthorized"));
-            } else {
-                res.status(500);
-                return gson.toJson(Map.of("message", "error: " + e.getMessage()));
-            }
+            return getString1(res, e);
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(Map.of("message", "error: " + e.getMessage()));
         }
         }
-        public Object createGame(Request req, Response res) {
+
+    private String getString1(Response res, DataAccessException e) {
+        if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid") || e.getMessage().contains("user not found")) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "error: unauthorized"));
+        } else {
+            res.status(500);
+            return gson.toJson(Map.of("message", "error: " + e.getMessage()));
+        }
+    }
+
+    public Object createGame(Request req, Response res) {
             try {
                 String authToken = req.headers("Authorization");
                 if (authToken == null || authToken.isEmpty()) {
@@ -56,19 +61,18 @@ public class GameHandler {
                 res.status(200);
                 return gson.toJson(Map.of("gameID", juegoBonito));
         } catch (DataAccessException e) {
-                if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid") || e.getMessage().contains("user not found")) {
-                    res.status(401);
-                    return gson.toJson(Map.of("message", "error: unauthorized"));
-                } else {
-                    res.status(500);
-                    return gson.toJson(Map.of("message", "error: " + e.getMessage()));
-                }
+                return getString(res, e);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "error: " + e.getMessage()));
             }
             }
-        public Object joinGame(Request req, Response res) {
+
+    private String getString(Response res, DataAccessException e) {
+        return getString1(res, e);
+    }
+
+    public Object joinGame(Request req, Response res) {
         try{
         String authToken = req.headers("Authorization");
             if (authToken == null || authToken.isEmpty()) {
