@@ -159,41 +159,4 @@ public class Service {
         assertNull(dataAccess.getUser("test123"));
         assertTrue(dataAccess.listGames().isEmpty());
     }
-
-    public static void main(String[] args) {
-        try {
-            // Setup
-            MemoryDataAccess dataAccess = new MemoryDataAccess();
-            GameService gameService = new GameService(dataAccess);
-
-            // Create user and auth
-            UserData user = new UserData("ExistingUser", "password", "email@test.com");
-            dataAccess.createUser(user);
-            AuthData auth = dataAccess.createAuth("ExistingUser");
-
-            // Create game
-            int gameID = gameService.createGame(auth.authToken(), "TestGame");
-            System.out.println("Created game with ID: " + gameID);
-
-            // Check initial game state
-            GameData initialGame = dataAccess.getGame(gameID);
-            System.out.println("Initial game - White: " + initialGame.whiteUsername() + ", Black: " + initialGame.blackUsername());
-
-            // Join as white
-            gameService.joinGame(auth.authToken(), "WHITE", gameID);
-
-            // Check updated game state
-            GameData updatedGame = dataAccess.getGame(gameID);
-            System.out.println("After join - White: " + updatedGame.whiteUsername() + ", Black: " + updatedGame.blackUsername());
-
-            // Check list games
-            Collection<GameData> games = gameService.listGames(auth.authToken());
-            for (GameData game : games) {
-                System.out.println("Listed game - ID: " + game.gameID() + ", White: " + game.whiteUsername() + ", Black: " + game.blackUsername());
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
