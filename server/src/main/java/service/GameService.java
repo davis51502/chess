@@ -30,7 +30,7 @@ public class GameService {
         }
         return dataAccess.createGame(name);
     }
-    public void joinGame(String authToken, String gamerColor, int gameID) throws DataAccessException {
+    public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
         // check if user is authorized
         AuthData auth = dataAccess.getAuth(authToken);
         if (auth == null) {
@@ -39,12 +39,12 @@ public class GameService {
         // check if the game exists
         GameData game = dataAccess.getGame(gameID);
         if (game == null) {
-            throw new DataAccessException("can't do that: invalid request");
+            throw new DataAccessException("error: bad request");
         }
         // check which side the player wants to join: black or white
-        if (gamerColor.equalsIgnoreCase("WHITE")) {
+        if (playerColor != null && playerColor.equalsIgnoreCase("WHITE")) {
             if (game.whiteUsername() != null) {
-                throw new DataAccessException("error: already in use ");
+                throw new DataAccessException("error: already taken");
             }
             GameData gameUpdate = new GameData(
                     gameID,
@@ -52,9 +52,9 @@ public class GameService {
                     game.blackUsername(),
                     game.gameName());
                     dataAccess.updateGame(gameUpdate);
-        } else if (gamerColor.equalsIgnoreCase("BLACK")) {
+        } else if (playerColor != null && playerColor.equalsIgnoreCase("BLACK")) {
             if (game.blackUsername() != null) {
-                throw new DataAccessException("error: already in use ");
+                throw new DataAccessException("error: already taken");
             }
             GameData gameUpdate = new GameData(gameID,
                     game.whiteUsername(),

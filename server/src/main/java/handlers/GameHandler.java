@@ -76,28 +76,33 @@ public class GameHandler {
                 return gson.toJson(Map.of("message", "error: unauthorized"));
             }
             Map reqData = gson.fromJson(req.body(), Map.class);
-            String juego = (String) reqData.get("gameName") ;
-            Double gameDouble = (Double) reqData.get("gameID");
-            Integer gameID = gameDouble.intValue();
-            if (gameID == null) {
+            if (reqData == null || !reqData.containsKey("gameID")) {
                 res.status(400);
                 return gson.toJson(Map.of("message", "error: bad request"));
             }
+            String playerColor = (String) reqData.get("playerColor") ;
+            Double gameDouble = (Double) reqData.get("gameID");
+
+            if (gameDouble == null) {
+                res.status(400);
+                return gson.toJson(Map.of("message", "error: bad request"));
+            }
+            Integer gameID = gameDouble.intValue();
             // playerColor is allowed to be null for observers
-            gameService.joinGame(authToken, juego, gameID);
+            gameService.joinGame(authToken, playerColor, gameID);
             res.status(200);
             return "{}";
 
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid")|| e.getMessage().contains("user not found")) {
+            if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid game name")|| e.getMessage().contains("user not found")) {
                 res.status(401);
                 return gson.toJson(Map.of("message", "error: unauthorized"));
             } else if (e.getMessage().contains("already taken") || e.getMessage().contains("taken")){
                 res.status(403);
                 return gson.toJson(Map.of("message", "error: already taken"));
-            } else if (e.getMessage().contains("bad req")){
+            } else if (e.getMessage().contains("error: bad request")){
                 res.status(400);
-                return gson.toJson(Map.of("message", "error: bad req"));
+                return gson.toJson(Map.of("message", "error: bad request"));
             }else {
                 res.status(500);
                 return gson.toJson(Map.of("message", "error: " + e.getMessage()));

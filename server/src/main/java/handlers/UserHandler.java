@@ -26,7 +26,7 @@ public class UserHandler {
             if (user.username() == null || user.password() == null || user.email() == null ||
                     user.username().isEmpty() || user.password().isEmpty() || user.email().isEmpty()) {
                 res.status(400);
-                return gson.toJson(Map.of("message", "Error: bad request"));
+                return gson.toJson(Map.of("message", "error: bad request"));
             }
             AuthData auth = userService.register(user);
             res.status(200);
@@ -53,7 +53,7 @@ public class UserHandler {
             if (user == null || user.username() == null || user.password() == null ||
                     user.username().isEmpty() || user.password().isEmpty()) {
                 res.status(400);
-                return gson.toJson(Map.of("message", "Error: bad request"));
+                return gson.toJson(Map.of("message", "error: bad request"));
         }
             AuthData auth = userService.login(user.username(), user.password());
             res.status(200);
@@ -94,7 +94,7 @@ public class UserHandler {
         } else if (message.contains("already taken")|| message.contains("already exists")) {
             res.status(403);
             return gson.toJson(Map.of("message", "Error: already taken"));
-        } else if (message.contains("bad request") || message.contains("invalid user data") || message.contains("missing")){
+        } else if (message.contains("error: bad request") || message.contains("invalid user data") || message.contains("missing")){
             res.status(400);
             return gson.toJson(Map.of("message", "Error: bad request"));
         } else {
