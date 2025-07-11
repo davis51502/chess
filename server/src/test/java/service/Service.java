@@ -75,7 +75,7 @@ public class Service {
         userservice.register(user);
         DataAccessException exception = assertThrows(DataAccessException.class,
                 () -> {userservice.login("test123", "wrongpw");});
-        assertTrue(exception.getMessage().contains("incorrect pw"));
+        assertTrue(exception.getMessage().contains("unauthorized"));
     }
     @Test
     public void testLogoutPositive() throws DataAccessException {

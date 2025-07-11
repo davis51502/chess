@@ -62,7 +62,7 @@ public class GameService {
                     game.gameName());
                     dataAccess.updateGame(gameUpdate);
 
-    }
+    } else {throw new DataAccessException("error: bad request");}
 
 }
 }
