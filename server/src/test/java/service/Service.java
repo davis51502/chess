@@ -151,12 +151,37 @@ public class Service {
 
     }
     @Test
+    public void joinGameInvalidColor() throws DataAccessException {
+        UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+        int gameID = gameService.createGame(auth.authToken(), "color test");
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(auth.authToken(), "MAGENTA", gameID)
+        );
+        assertTrue(exception.getMessage().contains("error: bad request"));
+    }
+
+
+    @Test
     public void testClear() throws DataAccessException {
-        dataAccess.createUser(new UserData("test123", "pass", "email1"));
+        dataAccess.createUser(new UserData("test123", "pass", "suibacan@gmail.com"));
         dataAccess.createAuth("test123");
-        dataAccess.createGame("Game 1");
+        dataAccess.createGame("Game clear");
         dataAccess.clear();
         assertNull(dataAccess.getUser("test123"));
         assertTrue(dataAccess.listGames().isEmpty());
+    }
+    @Test
+    public void testClearNegative() throws DataAccessException {
+        UserData user = new UserData("test123", "pass", "suibacan@gmail.com");
+        AuthData auth = userService.register(user);
+        gameService.createGame(auth.authToken(), "Game clear");
+        dataAccess.clear();
+
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> {
+            gameService.listGames(auth.authToken());
+        });
+        assertTrue(ex.getMessage().contains("unauthorized"));
     }
 }
