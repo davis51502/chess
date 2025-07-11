@@ -34,7 +34,7 @@ public class UserHandler {
 
 
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("already taken") || e.getMessage().contains("already exists")) {
+            if (e.getMessage().contains("already taken") || e.getMessage().contains("already exists") || e.getMessage().contains("user not found")) {
                 res.status(403);
                 return gson.toJson(Map.of("message", "Error: already taken"));
             } else {
@@ -66,12 +66,13 @@ public class UserHandler {
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
         }
+
         public Object logout(Request req, Response res) {
         try {
-            String authToken = req.headers("Auth");
+            String authToken = req.headers("Authorization");
             if (authToken == null || authToken.isEmpty()) {
                 res.status(401);
-                return gson.toJson(Map.of("message", "Error: unauthorized"));
+                return gson.toJson(Map.of("message", "error: unauthorized"));
             }
             userService.logout(authToken);
             res.status(200);
@@ -85,9 +86,17 @@ public class UserHandler {
         }
 
     public String errorHandler(Response res, DataAccessException e) {
-        if (e.getMessage().contains("unauthorized") || e.getMessage().contains("invalid")) {
+        String message = e.getMessage().toLowerCase();
+        if (message.contains("unauthorized") || message.contains("invalid") ||
+                message.contains("user not found") || message.contains("incorrect pw") || message.contains("missing user or pw") ) {
             res.status(401);
-            return gson.toJson(Map.of("message", "Error: unauthorized"));
+            return gson.toJson(Map.of("message", "error: unauthorized"));
+        } else if (message.contains("already taken")|| message.contains("already exists")) {
+            res.status(403);
+            return gson.toJson(Map.of("message", "Error: already taken"));
+        } else if (message.contains("bad request") || message.contains("invalid user data") || message.contains("missing")){
+            res.status(400);
+            return gson.toJson(Map.of("message", "Error: bad request"));
         } else {
             res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));

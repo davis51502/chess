@@ -16,7 +16,8 @@ public class UserService {
         if (dataAccess.getUser(usersdata.username()) != null) {
             throw new DataAccessException("error: username already exists");
         }
-        if (usersdata.username() == null || usersdata.username().isBlank()) {
+        if (usersdata.username() == null || usersdata.username().isBlank() || usersdata.password() == null ||
+                usersdata.password().isBlank()|| usersdata.email() == null|| usersdata.email().isBlank()) {
             throw new DataAccessException("error: invalid user data");
         }
         // insert new user into database
@@ -27,13 +28,13 @@ public class UserService {
     public AuthData login(String username, String password) throws DataAccessException {
         UserData user = dataAccess.getUser(username);
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            throw new DataAccessException("error: missing user or pw");
+            throw new DataAccessException("error: unauthorized");
         }
         if (user == null) {
-            throw new DataAccessException("error: user not found");
+            throw new DataAccessException("error: unauthorized");
         }
         if (!user.password().equals(password)) {
-            throw new DataAccessException("error: incorrect pw");
+            throw new DataAccessException("error: unauthorized");
         }
         return dataAccess.createAuth(username);
     }
@@ -41,10 +42,10 @@ public class UserService {
     public void logout(String authToken) throws DataAccessException {
         // always verify the input
         if (authToken == null || authToken.isBlank()) {
-            throw new DataAccessException("error: missing authentication token");
+            throw new DataAccessException("error: unauthorized");
         }
         if (dataAccess.getAuth(authToken) == null) {
-            throw new DataAccessException("Error:unauthorized");
+            throw new DataAccessException("error: unauthorized");
         }
         dataAccess.deleteAuth(authToken);
     }
