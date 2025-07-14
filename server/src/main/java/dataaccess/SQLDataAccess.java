@@ -23,6 +23,18 @@ public class SQLDataAccess implements DataAccess {
         } catch (SQLException ex){
             throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));}
     }
+    private UserData readUser(ResultSet rs) throws SQLException {var json  = rs.getString("json");
+    return new Gson().fromJson(json, UserData.class);}
+
+    private AuthData readAuth(ResultSet rs) throws SQLException {var json  = rs.getString("json");
+        return new Gson().fromJson(json, AuthData.class);}
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("game_ID");
+        var json  = rs.getString("json");
+        var game = new Gson().fromJson(json, GameData.class);
+        return new GameData(gameID, game.whiteUsername(), game.blackUsername(), game.gameName()); }
+
     private final String[] createState = {
     """
 CREATE TABLE IF NOT EXISTS user (
@@ -85,7 +97,17 @@ INDEX(game_name)
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, json FROM user WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return
+                    }
+                }
+            }
+        }
     }
 
     @Override
