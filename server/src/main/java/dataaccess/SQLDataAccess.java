@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.*;
 
@@ -89,10 +91,24 @@ INDEX(game_name)
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
-        var json = new Gson().toJson(userData);
-        executeUpdate(statement, userData.username(), userData.password(), userData.email(), json);
+    public void createUser(UserData userData) throws DataAccessException, SQLException {
+        if (getUser(userData.username()) != null) {
+            throw new DataAccessException("username is already taken");
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, userData.username());
+                String hashPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+                ps.setString(2, hashPassword);
+                ps.setString(3, userData.email());
+                UserData hashuserdata = new UserData(userData.username(), hashPassword, userData.email());
+                var json = new Gson().toJson(hashuserdata);
+                ps.setString(4, json);
+                ps.executeUpdate();
+            }
+        }catch (SQLException e) {e.printStackTrace(); throw new DataAccessException("error creating user");
+        }
     }
 
     @Override
@@ -103,11 +119,13 @@ INDEX(game_name)
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return
+                        return readUser(rs);
                     }
                 }
             }
-        }
+        } catch (Exception e) {throw new DataAccessException(
+                String.format("unable to read user data: %s", e.getMessage())); }
+        return null;
     }
 
     @Override

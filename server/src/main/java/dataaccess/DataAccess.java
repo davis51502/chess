@@ -5,11 +5,12 @@ import model.GameData;
 import model.UserData;
 
 import javax.xml.crypto.Data;
+import java.sql.SQLException;
 import java.util.Collection;
 
 public interface DataAccess {
     // user methods
-    void createUser(UserData userData) throws DataAccessException;
+    void createUser(UserData userData) throws DataAccessException, SQLException;
     UserData getUser(String username) throws DataAccessException;
 
     // auth methods
