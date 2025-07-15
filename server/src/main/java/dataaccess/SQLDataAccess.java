@@ -16,17 +16,23 @@ import static java.sql.Types.NULL;
 public class SQLDataAccess implements DataAccess {
     public SQLDataAccess() throws DataAccessException {
         DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
+        try {
+            var conn = DatabaseManager.getConnection();
+            try (conn) {
             for(var statement : createState) {
                 try (var prepStatement = conn.prepareStatement(statement)) {
                     prepStatement.executeUpdate();
                 }
             }
+            }
         } catch (SQLException ex){
-            throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));}
+            throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));
+        }
     }
-    private UserData readUser(ResultSet rs) throws SQLException {var json  = rs.getString("json");
-    return new Gson().fromJson(json, UserData.class);}
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var json  = rs.getString("json");
+        return new Gson().fromJson(json, UserData.class);
+    }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {var json  = rs.getString("json");
         return new Gson().fromJson(json, AuthData.class);}
@@ -70,28 +76,34 @@ INDEX(game_name)
 """
 
     };
-    private int executeUpdate(String statement, Object...params) throws DataAccessException, SQLException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+    private int executeUpdate(String statement, Object...params) throws DataAccessException {
+        try {
+            var conn = DatabaseManager.getConnection();
+            try (conn; var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 for (var i= 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String w) ps.setString(i+1,w);
-                    else if (param instanceof Integer w) ps.setInt(i+1,w);
-                    else if (param == null) ps.setNull(i+1, NULL);
+                    switch (param) {
+                        case String w -> ps.setString(i + 1, w);
+                        case Integer w -> ps.setInt(i + 1, w);
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
                 }
                 ps.executeUpdate();
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 } return 0;
-            } catch (SQLException e) {
-                throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
             }
+        }
+        catch (SQLException ex) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, ex.getMessage()));
         }
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException, SQLException {
+    public void createUser(UserData userData) throws DataAccessException {
         if (getUser(userData.username()) != null) {
             throw new DataAccessException("username is already taken");
         }

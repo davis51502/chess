@@ -5,6 +5,8 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
+import java.sql.SQLException;
+
 // register, login, logout
 public class UserService {
     private DataAccess dataAccess;

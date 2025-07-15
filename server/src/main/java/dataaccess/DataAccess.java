@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public interface DataAccess {
     // user methods
-    void createUser(UserData userData) throws DataAccessException, SQLException;
+    void createUser(UserData userData) throws DataAccessException;
     UserData getUser(String username) throws DataAccessException;
 
     // auth methods
