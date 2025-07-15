@@ -182,6 +182,15 @@ INDEX(game_name)
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game_ID, json FROM game WHERE game_ID=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {return readGame(rs);}
+                }
+            }
+        }catch (Exception e) {throw new DataAccessException(String.format("unable to read game data : %s", e.getMessage())); }
         return null;
     }
 
