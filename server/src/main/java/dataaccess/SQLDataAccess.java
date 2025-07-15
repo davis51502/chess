@@ -196,12 +196,26 @@ INDEX(game_name)
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+        var statement = new ArrayList<GameData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var state  = "SELECT game_ID, json FROM game";
+            try (var ps  = conn.prepareStatement(state)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        statement.add(readGame(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("unable to read games data: %s", e.getMessage()));
+        } return statement;
     }
 
     @Override
     public void updateGame(GameData game) throws DataAccessException {
-
+        var statement = "UPDATE game SET white_username=?, black_username=?, game_name=?, json=? WHERE game_ID=?";
+        var json = new Gson().toJson(game);
+        executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), json, game.gameID());
     }
 
     @Override
