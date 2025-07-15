@@ -152,17 +152,32 @@ INDEX(game_name)
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT token, json FROM auth WHERE token=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {throw new DataAccessException(String.format("unable to read auth data : %s", e.getMessage())); }
         return null;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        var statement = "DELETE FROM auth WHERE token=?";
+        executeUpdate(statement,authToken);
     }
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
-        return 0;
+        var statement = "INSERT INTO game (game_name, json) VALUES (?, ?)";
+        GameData gameData = new GameData(0, null, null, gameName);
+        var json = new Gson().toJson(gameData);
+        return executeUpdate(statement, gameName, json);
     }
 
     @Override
