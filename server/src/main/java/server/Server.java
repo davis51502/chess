@@ -1,7 +1,9 @@
 package server;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.SQLDataAccess;
 import handlers.ClearHandler;
 import handlers.GameHandler;
 import handlers.UserHandler;
@@ -10,11 +12,16 @@ import spark.*;
 
 public class Server {
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort) throws DataAccessException {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-        DataAccess dataAccess = new MemoryDataAccess();
+        DataAccess dataAccess;
+        try {dataAccess = new SQLDataAccess(); } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+
         UserService userService = new UserService(dataAccess);
         GameService gameService = new GameService(dataAccess);
         ClearService clearService = new ClearService(dataAccess);

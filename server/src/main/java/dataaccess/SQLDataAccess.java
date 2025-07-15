@@ -220,6 +220,13 @@ INDEX(game_name)
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statements = new String[] {
+                "DELETE FROM auth",
+                "DELETE FROM game",
+                "DELETE FROM user",
+        };
+        for (var statement: statements) {
+            executeUpdate(statement);
+        }
     }
 }
