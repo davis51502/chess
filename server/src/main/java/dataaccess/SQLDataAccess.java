@@ -142,7 +142,12 @@ INDEX(game_name)
 
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
-        return null;
+        String token = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(token, username);
+        var statement = "INSERT INTO auth (token, username, json) VALUES (?, ?, ?)";
+        var json = new Gson().toJson(authData);
+        executeUpdate(statement, token, username, json);
+        return authData;
     }
 
     @Override
