@@ -18,7 +18,7 @@ public interface DataAccess {
     AuthData getAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
 
-    // game methods
+    // game methodsw
     int createGame(String gameName) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
     Collection<GameData> listGames() throws DataAccessException;
@@ -26,4 +26,6 @@ public interface DataAccess {
 
     // clear method
     void clear() throws DataAccessException;
+
+    boolean verifyPw(String username, String password) throws DataAccessException;
 }

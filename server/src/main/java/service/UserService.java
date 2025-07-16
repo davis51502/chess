@@ -35,7 +35,7 @@ public class UserService {
         if (user == null) {
             throw new DataAccessException("error: unauthorized");
         }
-        if (!user.password().equals(password)) {
+        if (!dataAccess.verifyPw(username, password)) {
             throw new DataAccessException("error: unauthorized");
         }
         return dataAccess.createAuth(username);

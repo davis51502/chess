@@ -2,6 +2,8 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.*;
 
 public class MemoryDataAccess implements DataAccess {
@@ -85,5 +87,14 @@ public class MemoryDataAccess implements DataAccess {
         authTokens.clear();
         games.clear();
         gameIdCounter = 1;
+    }
+
+    @Override
+    public boolean verifyPw(String username, String normalPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null ) {
+            return false;
+        }
+        return BCrypt.checkpw(normalPassword, user.password());
     }
 }

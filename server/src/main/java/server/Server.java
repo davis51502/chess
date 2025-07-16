@@ -25,6 +25,7 @@ public class Server {
             System.err.println("Failed to initialize database: " + e.getMessage());
             dataAccess = new MemoryDataAccess();
         }
+//        DataAccess dataAccess = new MemoryDataAccess();
 
         UserService userService = new UserService(dataAccess);
         GameService gameService = new GameService(dataAccess);

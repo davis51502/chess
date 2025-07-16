@@ -26,6 +26,15 @@ public class SQLDataAccess implements DataAccess {
             throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));
         }
     }
+    public boolean verifyPw(String username, String normalPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null ) {
+            return false;
+        }
+        return BCrypt.checkpw(normalPassword, user.password());
+    }
+
+
     private UserData readUser(ResultSet rs) throws SQLException {
         var json  = rs.getString("json");
         return new Gson().fromJson(json, UserData.class);
