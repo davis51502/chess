@@ -1,12 +1,9 @@
 package dataaccess;
-
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.*;
 
@@ -25,7 +22,7 @@ public class SQLDataAccess implements DataAccess {
                 }
             }
             }
-        } catch (SQLException ex){
+        } catch (SQLException | DataAccessException ex){
             throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));
         }
     }
@@ -52,7 +49,7 @@ CREATE TABLE IF NOT EXISTS user (
 `json` TEXT DEFAULT NULL,
 PRIMARY KEY (`username`),\s
 INDEX(email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci\s
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 """, """
 CREATE TABLE IF NOT EXISTS auth (
 `token` varchar(256) NOT NULL,
@@ -60,7 +57,7 @@ CREATE TABLE IF NOT EXISTS auth (
 `json` TEXT DEFAULT NULL,
 PRIMARY KEY (`token`),
 INDEX(username)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci\s
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 """, """
 CREATE TABLE IF NOT EXISTS game (
 `game_ID` int NOT NULL AUTO_INCREMENT,
@@ -72,7 +69,7 @@ PRIMARY KEY (`game_ID`),
 INDEX(white_username),
 INDEX(black_username),
 INDEX(game_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci\s
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 """
 
     };
@@ -97,7 +94,7 @@ INDEX(game_name)
                 } return 0;
             }
         }
-        catch (SQLException ex) {
+        catch (SQLException | DataAccessException ex) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, ex.getMessage()));
         }
     }
@@ -119,7 +116,7 @@ INDEX(game_name)
                 ps.setString(4, json);
                 ps.executeUpdate();
             }
-        }catch (SQLException e) {e.printStackTrace(); throw new DataAccessException("error creating user");
+        }catch (SQLException | DataAccessException e) {throw new DataAccessException("error creating user" + e.getMessage());
         }
     }
 
@@ -135,7 +132,7 @@ INDEX(game_name)
                     }
                 }
             }
-        } catch (Exception e) {throw new DataAccessException(
+        } catch (SQLException | DataAccessException e) {throw new DataAccessException(
                 String.format("unable to read user data: %s", e.getMessage())); }
         return null;
     }
@@ -162,14 +159,14 @@ INDEX(game_name)
                     }
                 }
             }
-        } catch (Exception e) {throw new DataAccessException(String.format("unable to read auth data : %s", e.getMessage())); }
+        } catch (SQLException | DataAccessException e) {throw new DataAccessException(String.format("unable to read auth data : %s", e.getMessage())); }
         return null;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE token=?";
-        executeUpdate(statement,authToken);
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -190,7 +187,7 @@ INDEX(game_name)
                     if (rs.next()) {return readGame(rs);}
                 }
             }
-        }catch (Exception e) {throw new DataAccessException(String.format("unable to read game data : %s", e.getMessage())); }
+        }catch (SQLException | DataAccessException e) {throw new DataAccessException(String.format("unable to read game data : %s", e.getMessage())); }
         return null;
     }
 
@@ -206,7 +203,7 @@ INDEX(game_name)
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException(String.format("unable to read games data: %s", e.getMessage()));
         } return statement;
     }

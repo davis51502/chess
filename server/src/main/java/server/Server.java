@@ -10,16 +10,20 @@ import handlers.UserHandler;
 import service.*;
 import spark.*;
 
+import java.sql.SQLException;
+
 public class Server {
 
-    public int run(int desiredPort) throws DataAccessException {
+    public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
         DataAccess dataAccess;
-        try {dataAccess = new SQLDataAccess(); } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+        try {
+            dataAccess = new SQLDataAccess();
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize database: " + e.getMessage());
+            dataAccess = new MemoryDataAccess();
         }
 
         UserService userService = new UserService(dataAccess);

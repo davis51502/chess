@@ -1,9 +1,7 @@
 package dataaccess;
-
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-
 import java.util.*;
 
 public class MemoryDataAccess implements DataAccess {
@@ -13,19 +11,19 @@ public class MemoryDataAccess implements DataAccess {
     private int gameIdCounter;
 
     public MemoryDataAccess() {
-        users = new HashMap<>(); 
-        authTokens = new HashMap<>(); 
+        users = new HashMap<>();
+        authTokens = new HashMap<>();
         games = new HashMap<>();
         gameIdCounter = 1;
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException {
+    public void createUser(UserData userData)  {
         users.put(userData.username(), userData);
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) {
         try {
             return users.get(username);
         } catch (Exception e) {
@@ -34,7 +32,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData createAuth(String username) throws DataAccessException  {
+    public AuthData createAuth(String username)  {
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, username);
         authTokens.put(token, authData);
@@ -42,12 +40,12 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException  {
+    public AuthData getAuth(String authToken)  {
         return authTokens.get(authToken);
     }
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException  {
+    public void deleteAuth(String authToken)  {
         try {
             authTokens.remove(authToken);
         } catch (Exception e) {
@@ -56,24 +54,24 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public int createGame(String gameName)  throws DataAccessException {
+    public int createGame(String gameName)  {
         int id = gameIdCounter++;
         games.put(id, new GameData(id, null, null, gameName));
         return id;
     }
 
     @Override
-    public GameData getGame(int gameID)  throws DataAccessException{
+    public GameData getGame(int gameID) {
         return games.get(gameID);
     }
 
     @Override
-    public Collection<GameData> listGames()  throws DataAccessException {
+    public Collection<GameData> listGames()  {
         return games.values();
     }
 
     @Override
-    public void updateGame(GameData game)  throws DataAccessException {
+    public void updateGame(GameData game)  {
         try {
             games.put(game.gameID(), game);
         } catch (Exception e) {
@@ -82,7 +80,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void clear()  throws DataAccessException {
+    public void clear()  {
         users.clear();
         authTokens.clear();
         games.clear();
