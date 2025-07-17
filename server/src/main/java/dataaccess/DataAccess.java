@@ -3,9 +3,6 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-
-import javax.xml.crypto.Data;
-import java.sql.SQLException;
 import java.util.Collection;
 
 public interface DataAccess {

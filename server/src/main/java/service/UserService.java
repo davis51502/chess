@@ -28,14 +28,20 @@ public class UserService {
         return dataAccess.createAuth(usersdata.username());
     }
     public AuthData login(String username, String password) throws DataAccessException {
-        UserData user = dataAccess.getUser(username);
+
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             throw new DataAccessException("error: unauthorized");
         }
+        UserData user = dataAccess.getUser(username);
+
         if (user == null) {
             throw new DataAccessException("error: unauthorized");
         }
-        if (!dataAccess.verifyPw(username, password)) {
+        try {
+            if (!dataAccess.verifyPw(username, password)) {
+                throw new DataAccessException("error: unauthorized");
+            }
+        } catch (IllegalArgumentException e){
             throw new DataAccessException("error: unauthorized");
         }
         return dataAccess.createAuth(username);

@@ -8,6 +8,7 @@ import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Collection;
 
@@ -63,6 +64,7 @@ public class Tests {
     // login
     @Test
     public void testLoginPositive() throws DataAccessException {
+        dataAccess.clear();
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
         UserService userservice = new UserService(dataAccess);
         userservice.register(user);
@@ -72,12 +74,21 @@ public class Tests {
     }
     @Test
     public void testLoginNegative() throws DataAccessException {
+        dataAccess.clear();
         UserData user = new UserData("test123", "test321", "suibacan@gmail.com");
         UserService userservice = new UserService(dataAccess);
         userservice.register(user);
         DataAccessException exception = assertThrows(DataAccessException.class,
                 () -> {userservice.login("test123", "wrongpw");});
         assertTrue(exception.getMessage().contains("unauthorized"));
+    }
+    @Test
+    public void testBCryptDirectly() {
+        String plainPassword = "test321";
+        String storedHash = "$2a$10$zqU2N5n2glor0QFZIQFtdOF9K0ORiSue5qSzqCq6a1iMhsLpyF3nS";
+
+        boolean result = BCrypt.checkpw(plainPassword, storedHash);
+        System.out.println("BCrypt check result: " + result);
     }
     // logout
     @Test
