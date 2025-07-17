@@ -33,7 +33,6 @@ public class UserService {
             throw new DataAccessException("error: unauthorized");
         }
         UserData user = dataAccess.getUser(username);
-
         if (user == null) {
             throw new DataAccessException("error: unauthorized");
         }
@@ -41,8 +40,9 @@ public class UserService {
             if (!dataAccess.verifyPw(username, password)) {
                 throw new DataAccessException("error: unauthorized");
             }
-        } catch (IllegalArgumentException e){
+        } catch (DataAccessException e){
             throw new DataAccessException("error: unauthorized");
+        }  catch (Exception e) {throw new DataAccessException("error: unauthorized");
         }
         return dataAccess.createAuth(username);
     }

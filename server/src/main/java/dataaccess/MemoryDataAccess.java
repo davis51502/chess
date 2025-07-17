@@ -20,8 +20,14 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void createUser(UserData userData)  {
-        users.put(userData.username(), userData);
+    public void createUser(UserData userData) throws DataAccessException {
+        if (users.containsKey(userData.username())) {
+            throw new DataAccessException("username is already taken");
+        }
+        String hashedpw = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        UserData userHash = new UserData(userData.username(), hashedpw, userData.email());
+
+        users.put(userData.username(), userHash);
     }
 
     @Override
@@ -91,10 +97,14 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public boolean verifyPw(String username, String normalPassword) throws DataAccessException {
-        UserData user = getUser(username);
-        if (user == null ) {
-            return false;
-        }
-        return BCrypt.checkpw(normalPassword, user.password());
+        try {
+            UserData user = getUser(username);
+            if (user == null) {
+                return false;
+            }
+            return BCrypt.checkpw(normalPassword, user.password());
+        } catch (IllegalArgumentException e) {
+            throw new DataAccessException("pw verification failed:" + e.getMessage());
+        } catch (Exception e) {throw new DataAccessException("error verifying pw: " + e.getMessage()); }
     }
 }

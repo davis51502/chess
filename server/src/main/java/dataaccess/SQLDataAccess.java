@@ -27,11 +27,15 @@ public class SQLDataAccess implements DataAccess {
         }
     }
     public boolean verifyPw(String username, String normalPassword) throws DataAccessException {
-        UserData user = getUser(username);
-        if (user == null ) {
-            return false;
-        }
-        return BCrypt.checkpw(normalPassword, user.password());
+        try {
+            UserData user = getUser(username);
+            if (user == null) {
+                return false;
+            }
+            return BCrypt.checkpw(normalPassword, user.password());
+        } catch (IllegalArgumentException e) {
+            throw new DataAccessException("pw verification failed:" + e.getMessage());
+        } catch (Exception e) {throw new DataAccessException("error verifying pw: " + e.getMessage()); }
     }
 
 

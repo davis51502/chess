@@ -33,8 +33,9 @@ public class Tests {
 
         UserData sui = dataAccess.getUser("test123");
         assertEquals(user.username(), sui.username());
-        assertEquals(user.password(), sui.password());
+
         assertEquals(user.email(), sui.email());
+        assertTrue(dataAccess.verifyPw("test123", "test321"));
     }
     @Test
     public void testCreateUserNegative() throws DataAccessException {
