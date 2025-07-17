@@ -15,29 +15,36 @@ public class SQLDataAccess implements DataAccess {
         DatabaseManager.createDatabase();
         try {
             var conn = DatabaseManager.getConnection();
-            try (conn) {
+            dataExtractor(conn);
+        } catch (SQLException | DataAccessException ex){
+            throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));
+        }
+    }
+
+    private void dataExtractor(Connection conn) throws SQLException {
+        try (conn) {
             for(var statement : createState) {
                 try (var prepStatement = conn.prepareStatement(statement)) {
                     prepStatement.executeUpdate();
                 }
             }
-            }
-        } catch (SQLException | DataAccessException ex){
-            throw new DataAccessException(String.format("unable to configure database:%s", ex.getMessage()));
         }
     }
     public boolean verifyPw(String username, String normalPassword) throws DataAccessException {
         try {
-            UserData user = getUser(username);
-            if (user == null) {
-                return false;
-            }
-            return BCrypt.checkpw(normalPassword, user.password());
+            return verifyHelper(username, normalPassword);
         } catch (IllegalArgumentException e) {
             throw new DataAccessException("pw verification failed:" + e.getMessage());
         } catch (Exception e) {throw new DataAccessException("error verifying pw: " + e.getMessage()); }
     }
 
+    private boolean verifyHelper(String username, String normalPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null) {
+            return false;
+        }
+        return BCrypt.checkpw(normalPassword, user.password());
+    }
 
     private UserData readUser(ResultSet rs) throws SQLException {
         var json  = rs.getString("json");
@@ -90,16 +97,7 @@ INDEX(game_name)
         try {
             var conn = DatabaseManager.getConnection();
             try (conn; var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                for (var i= 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String w -> ps.setString(i + 1, w);
-                        case Integer w -> ps.setInt(i + 1, w);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
+                updateExactor(params, ps);
                 ps.executeUpdate();
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
@@ -109,6 +107,19 @@ INDEX(game_name)
         }
         catch (SQLException | DataAccessException ex) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, ex.getMessage()));
+        }
+    }
+
+    private static void updateExactor(Object[] params, PreparedStatement ps) throws SQLException {
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            switch (param) {
+                case String w -> ps.setString(i + 1, w);
+                case Integer w -> ps.setInt(i + 1, w);
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
         }
     }
 
@@ -172,7 +183,8 @@ INDEX(game_name)
                     }
                 }
             }
-        } catch (SQLException | DataAccessException e) {throw new DataAccessException(String.format("unable to read auth data : %s", e.getMessage())); }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(String.format("unable to read auth data : %s", e.getMessage())); }
         return null;
     }
 
@@ -200,7 +212,8 @@ INDEX(game_name)
                     if (rs.next()) {return readGame(rs);}
                 }
             }
-        }catch (SQLException | DataAccessException e) {throw new DataAccessException(String.format("unable to read game data : %s", e.getMessage())); }
+        }catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(String.format("unable to read game data : %s", e.getMessage())); }
         return null;
     }
 

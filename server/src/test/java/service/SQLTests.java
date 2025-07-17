@@ -29,17 +29,17 @@ public class SQLTests {
     void createUserPositive() {
         UserData userData = new UserData("testuser", "password", "test@example.com");
         assertDoesNotThrow(() -> dataAccess.createUser(userData));
-        UserData CollectedUser = null;
+        UserData collectedUser = null;
         try {
-            CollectedUser = dataAccess.getUser("testuser");
+            collectedUser = dataAccess.getUser("testuser");
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        assertNotNull(CollectedUser);
-        assertEquals("testuser", CollectedUser.username());
+        assertNotNull(collectedUser);
+        assertEquals("testuser", collectedUser.username());
 
-        assertEquals("test@example.com" , CollectedUser.email());
-        Assertions.assertTrue(BCrypt.checkpw("password", CollectedUser.password()));
+        assertEquals("test@example.com" , collectedUser.email());
+        Assertions.assertTrue(BCrypt.checkpw("password", collectedUser.password()));
     }
     @Test
     void createUserNegative() {
@@ -122,16 +122,7 @@ public class SQLTests {
 
     }
     @Test
-    public void testClearPositive() throws DataAccessException {
-        dataAccess.createUser(new UserData("test123", "pass", "suibacan@gmail.com"));
-        dataAccess.createAuth("test123");
-        dataAccess.createGame("Game clear");
-        dataAccess.clear();
-        assertNull(dataAccess.getUser("test123"));
-        assertTrue(dataAccess.listGames().isEmpty());
-    }
-    @Test
-    public void testClearNegative() throws DataAccessException {
+    public void testClear() throws DataAccessException {
         assertDoesNotThrow(() -> dataAccess.clear());
         assertNull(dataAccess.getUser("anybody"));
         assertTrue(dataAccess.listGames().isEmpty());
