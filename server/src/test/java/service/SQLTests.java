@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.SQLDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.AfterEach;
@@ -82,31 +83,54 @@ public class SQLTests {
         assertFalse(isAlright);
     }
     @Test
-    void createAuthPositive() {
+    void createAuthPositive() throws DataAccessException {
+        AuthData authData = dataAccess.createAuth("testuser");
+        assertNotNull(authData);
+        assertNotNull(authData.authToken());
+        assertEquals("testuser", authData.username());
 
     }
     @Test
-    void createAuthNegative() {
+    void createAuthNegative() throws DataAccessException {
+        AuthData authData = dataAccess.createAuth("null");
+        assertNotNull(authData);
+        assertNotNull(authData.authToken());
 
     }
     @Test
-    void getAuthPositive() {
+    void getAuthPositive() throws DataAccessException {
+        AuthData authData = dataAccess.createAuth("testuser");
+        AuthData userPerson = dataAccess.getAuth(authData.authToken());
+        assertNotNull(userPerson) ;
+        assertEquals(authData.authToken(), userPerson.authToken());
 
     }
     @Test
-    void getAuthNegative() {
+    void getAuthNegative() throws DataAccessException {
+        AuthData userPerson = dataAccess.getAuth("invalid token");
+        assertNull(userPerson);
 
     }
     @Test
-    void deleteAuthPositive() {
+    void deleteAuthPositive() throws DataAccessException {
+        AuthData createrAuth = dataAccess.createAuth("testuser");
+        AuthData userPerson = dataAccess.getAuth(createrAuth.authToken());
+        assertNotNull(userPerson);
+        assertDoesNotThrow(() -> dataAccess.deleteAuth(createrAuth.authToken()));
 
     }
     @Test
-    void deleteAuthNegative() {
-
+    void deleteAuthNegative() throws DataAccessException {
+        assertDoesNotThrow(() ->  dataAccess.deleteAuth("invalid token"));
     }
     @Test
-    void createGamePositive() {
+    void createGamePositive() throws  DataAccessException {
+        int gameID = dataAccess.createGame("test game");
+        assertTrue(gameID > 0);
+        GameData dataGame = dataAccess.getGame(gameID);
+        assertNotNull(dataGame);
+        assertEquals(gameID, dataGame.gameID());
+        assertEquals("test game", dataGame.gameName());
 
     }
     @Test
