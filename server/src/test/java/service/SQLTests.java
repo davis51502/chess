@@ -51,19 +51,35 @@ public class SQLTests {
     }
     @Test
     void getUserPositive() throws DataAccessException {
+        UserData userData = new UserData("testuser", "password", "test@example.com");
+        dataAccess.createUser(userData);
+        UserData userPerson = dataAccess.getUser("testuser");
+        assertNotNull(userPerson);
+        assertEquals("testuser", userPerson.username());
+        assertEquals("test@example.com", userPerson.email());
+    }
+    @Test
+    void getUserNegative() throws DataAccessException {
+        UserData userPerson = dataAccess.getUser("unregistered user");
+        assertNull(userPerson);
 
     }
     @Test
-    void getUserNegative() {
+    void verifyPWPositive() throws DataAccessException {
+        UserData userData = new UserData("testuser", "password", "test@example.com");
+        dataAccess.createUser(userData);
+        boolean isOk = dataAccess.verifyPw("testuser", "password");
+        assertTrue(isOk);
 
     }
     @Test
-    void verifyPWPositive() {
-
-    }
-    @Test
-    void verifyPWNegative() {
-
+    void verifyPWNegative() throws DataAccessException {
+        UserData userData = new UserData("testuser", "password", "test@example.com");
+        dataAccess.createUser(userData);
+        boolean isOk = dataAccess.verifyPw("testuser", "wrong password");
+        assertFalse(isOk);
+        boolean isAlright = dataAccess.verifyPw("invalid user", "password");
+        assertFalse(isAlright);
     }
     @Test
     void createAuthPositive() {
