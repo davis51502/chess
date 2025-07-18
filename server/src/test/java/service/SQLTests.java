@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.Collection;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLTests {
@@ -134,32 +136,52 @@ public class SQLTests {
 
     }
     @Test
-    void createGameNegative() {
+    void createGameNegative() throws DataAccessException {
+        int gameID = dataAccess.createGame(null);
+        assertTrue(gameID > 0);
+        GameData dataGame = dataAccess.getGame(gameID);
+        assertNotNull(dataGame);
+        assertNull(dataGame.gameName());
+    }
+    @Test
+    void getGamePositive() throws DataAccessException {
+        int gameID = dataAccess.createGame("test game");
+        GameData dataGame = dataAccess.getGame(gameID);
+        assertNotNull(dataGame);
+        assertEquals(gameID, dataGame.gameID());
+
 
     }
     @Test
-    void getGamePositive() {
+    void getGameNegative()  throws  DataAccessException{
+        GameData dataGame = dataAccess.getGame(123456789);
+        assertNull(dataGame);
 
     }
     @Test
-    void getGameNegative() {
-
+    void listGamesPositive() throws  DataAccessException{
+        int game1 = dataAccess.createGame("game1");
+        int game2 = dataAccess.createGame("game2");
+        int game3 = dataAccess.createGame("game3");
+        Collection<GameData> games = dataAccess.listGames();
+        assertNotNull(games);
+        assertEquals(3, games.size());
     }
     @Test
-    void listGamesPositive() {
-
+    void listGamesNegative() throws DataAccessException{
+        Collection<GameData> games = dataAccess.listGames();
+        assertTrue(games.isEmpty());
     }
     @Test
-    void listGamesNegative() {
-
+    void updateGamePositive() throws DataAccessException{
+        int gameID = dataAccess.createGame("test game");
+        GameData updatedGameplay = new GameData(gameID, "white", "black", "updated game") ;
+        assertDoesNotThrow(() -> dataAccess.updateGame(updatedGameplay));
     }
     @Test
-    void updateGamePositive() {
-
-    }
-    @Test
-    void updateGameNegative() {
-
+    void updateGameNegative() throws  DataAccessException {
+        GameData unknownGame = new GameData(123456789, "white", "black", "game");
+        assertDoesNotThrow(() -> dataAccess.updateGame(unknownGame));
     }
     @Test
     public void testClear() throws DataAccessException {
