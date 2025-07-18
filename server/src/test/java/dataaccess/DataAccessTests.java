@@ -1,11 +1,8 @@
-package service;
+package dataaccess;
 
-import dataaccess.DataAccessException;
-import dataaccess.SQLDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +13,7 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SQLTests {
+public class DataAccessTests {
     private SQLDataAccess dataAccess;
 
     @BeforeEach
