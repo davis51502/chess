@@ -8,7 +8,7 @@ import model.UserData;
 
 import javax.swing.text.html.HTML;
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.*;
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,15 +33,40 @@ public class ServerFacade {
         var request = Map.of("gameName", gameName);
         return makeReq("POST", "/game", request, GameData.class, authToken);
     }
-    public Collection<GameData> listGames() {
-
+    public Collection<GameData> listGames(String authToken) throws Exception {
+        record ListGamesResp(Collection<GameData> games) {}
+        var response = makeReq("GET", "/game", null,ListGamesResp.class, authToken);
+        return response.games;
     }
-    public void joinGame() {
-
+    public void joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws Exception{
+        var req = new JoinGameReq(playerColor, gameID);
+        makeReq("PUT", "/game", req, null, authToken) ;
     }
     private <T> T makeReq(String method, String path,
                                               Object req, Class<T> responseClass, String authToken) throws Exception {
+        HttpURLConnection connection = null ;
+        try {
+            URL url = new URL(serverURL +path);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod(method);
+            connection.setReadTimeout(4567);
+            if (authToken != null) {
+                connection.addRequestProperty("Authorization" , authToken);
+            }
+            if (req != null) {
+                writeReqBody(req, connection);
+            }
+            connection.connect();
+            //check resp code
+            if (!isSuccessful(connection.getResponseCode())){
+                handleErrorResponse(connection);
+            }
+            return readRespBody(connection,responseClass);
 
+        }finally {
+            if (connection != null) {connection.disconnect();
+            }
+        }
     }
     private void writeReqBody (Object req , HttpURLConnection connection) throws IOException {
 
