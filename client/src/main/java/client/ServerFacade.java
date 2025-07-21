@@ -2,12 +2,13 @@ package client;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
 import javax.swing.text.html.HTML;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.Collection;
 import java.util.Map;
@@ -69,13 +70,37 @@ public class ServerFacade {
         }
     }
     private void writeReqBody (Object req , HttpURLConnection connection) throws IOException {
-
+        connection.setDoInput(true);
+        connection.addRequestProperty("Content-type","application/json");
+        try (OutputStream reqBody = connection.getOutputStream()) {
+            String json = gson.toJson(req);
+            reqBody.write(json.getBytes("UTF-8"));
+        }
     }
     private <T> T readRespBody(HttpURLConnection connection,Class<T> respClass) throws IOException {
-
+        //return null if no resp body is expected/present
+        if (respClass == null || connection.getContentLength() < 1) {return  null;}
+        try (InputStream respBody = connection.getInputStream()) {
+            InputStreamReader reader = new InputStreamReader(respBody) ;
+            return gson.fromJson(reader, respClass);
+        }
     }
+    // basically the check engine light function
     private void handleErrorResponse ( HttpURLConnection connection) throws IOException, Exception {
-
+        String errorMesg = String.format("Req failed with HTTP %d: %s",
+                connection.getResponseCode(), connection.getResponseMessage());
+        try (InputStream errorStream =connection.getErrorStream()) {
+            if (errorStream == null) {
+                String errorBody = new String(errorStream.readAllBytes());
+                try {
+                    Map<?,?> errormap = gson.fromJson(errorBody, Map.class);
+                    if (errormap.containsKey("message")) {errorMesg += "\ndetails:" + errormap.get("message"); }
+                } catch (Exception e) {
+                    errorMesg += "\n" + errorBody;
+                }
+            }
+        }
+        throw new Exception(errorMesg);
     }
     // to check if code is 2xx range
     private boolean isSuccessful(int status) {
