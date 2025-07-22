@@ -48,5 +48,15 @@ public class ServerFacadeTests {
         assertEquals("player1", authData.username());
         assertNotNull(authData.authToken());
     }
+    @Test
+    void registerNegative() throws Exception {
+        AuthData frstUser = serverFacade.register("doubled user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser, "1st registration should yield success");
+        Exception exception = assertThrows(Exception.class, () -> {
+            serverFacade.register("doubled user", "password", "suibacan@gmail.com");
+        });
+        assertNotNull(exception, "exception thrown for doubled user");
+
+    }
 
 }

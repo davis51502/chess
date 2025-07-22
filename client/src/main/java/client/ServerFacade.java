@@ -82,9 +82,9 @@ public class ServerFacade {
     }
     private <T> T readRespBody(HttpURLConnection connection,Class<T> respClass) throws IOException {
         //return null if no resp body is expected/present
-        if (respClass == null || connection.getContentLength() < 1) {return  null;}
+        if (respClass == null || connection.getContentLength() == 0) {return  null;}
         try (InputStream respBody = connection.getInputStream()) {
-            InputStreamReader reader = new InputStreamReader(respBody) ;
+            InputStreamReader reader = new InputStreamReader(respBody);
             return gson.fromJson(reader, respClass);
         }
     }
