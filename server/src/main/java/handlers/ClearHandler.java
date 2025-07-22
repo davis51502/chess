@@ -20,9 +20,6 @@ public class ClearHandler {
             clearService.clearApp();
             res.status(200);
             return "{}";
-        } catch (DataAccessException e) {
-            res.status(500);
-            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));

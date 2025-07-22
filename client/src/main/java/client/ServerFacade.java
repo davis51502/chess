@@ -43,12 +43,15 @@ public class ServerFacade {
         var req = new JoinGameReq(playerColor, gameID);
         makeReq("PUT", "/game", req, null, authToken) ;
     }
+    protected HttpURLConnection openConnection(String path) throws Exception {
+        URL url = new URL(serverURL +path);
+        return (HttpURLConnection) url.openConnection();
+    }
     private <T> T makeReq(String method, String path,
                                               Object req, Class<T> responseClass, String authToken) throws Exception {
         HttpURLConnection connection = null ;
         try {
-            URL url = new URL(serverURL +path);
-            connection = (HttpURLConnection) url.openConnection();
+            connection = openConnection(path);
             connection.setRequestMethod(method);
             connection.setReadTimeout(4567);
             if (authToken != null) {
@@ -70,7 +73,7 @@ public class ServerFacade {
         }
     }
     private void writeReqBody (Object req , HttpURLConnection connection) throws IOException {
-        connection.setDoInput(true);
+        connection.setDoOutput(true);
         connection.addRequestProperty("Content-type","application/json");
         try (OutputStream reqBody = connection.getOutputStream()) {
             String json = gson.toJson(req);
@@ -90,7 +93,7 @@ public class ServerFacade {
         String errorMesg = String.format("Req failed with HTTP %d: %s",
                 connection.getResponseCode(), connection.getResponseMessage());
         try (InputStream errorStream =connection.getErrorStream()) {
-            if (errorStream == null) {
+            if (errorStream != null) {
                 String errorBody = new String(errorStream.readAllBytes());
                 try {
                     Map<?,?> errormap = gson.fromJson(errorBody, Map.class);
@@ -106,5 +109,10 @@ public class ServerFacade {
     private boolean isSuccessful(int status) {
         return status >= 200 && status < 300;
     }
+
+    public void clear() throws Exception {
+    makeReq("DELETE", "/db", null, null, null);
+    }
+
     private record JoinGameReq(ChessGame.TeamColor playerColor, int gameID) {}
 }
