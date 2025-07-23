@@ -70,7 +70,7 @@ public class ServerFacadeTests {
         assertEquals("user", loginRes.username());
     }
     @Test
-    void loginNegative() throws Exception {
+    void loginNegative()  {
         Exception exception = assertThrows(Exception.class, () ->
         {serverFacade.login("fake user", "fake password");
         });
@@ -84,7 +84,7 @@ public class ServerFacadeTests {
         });
     }
     @Test
-    void logoutNegative() throws Exception {
+    void logoutNegative()  {
         Exception exception = assertThrows(Exception.class, () ->
         {serverFacade.logout("invalidtoken");});
         assertNotNull(exception, "exception should be thrown because of the invalid token ");
@@ -100,7 +100,7 @@ public class ServerFacadeTests {
         assertTrue(result.gameID()>0);
     }
     @Test
-    void createGameNegative() throws Exception {
+    void createGameNegative() {
         Exception exception = assertThrows(Exception.class, () ->
         {serverFacade.createGame("invalid", "test game");});
         assertNotNull(exception);
@@ -118,7 +118,7 @@ public class ServerFacadeTests {
 
     }
     @Test
-    void listGamesNegative() throws Exception {
+    void listGamesNegative()  {
         Exception exception = assertThrows(Exception.class, () ->
         {serverFacade.listGames("invalid");});
         assertNotNull(exception);
@@ -134,9 +134,23 @@ public class ServerFacadeTests {
 
     }
     @Test
-    void joinGamesNegative() throws Exception {
+    void joinGamesNegative()  {
         Exception exception = assertThrows(Exception.class, () ->
         {serverFacade.joinGame("invalid", ChessGame.TeamColor.WHITE, 9999999);});
+        assertNotNull(exception);
+    }
+    @Test
+    void clearPositive () throws Exception {
+        AuthData frstUser = serverFacade.register("clearuser", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser);
+        assertDoesNotThrow(() -> {serverFacade.clear();});
+        Exception exception = assertThrows(Exception.class, () -> {serverFacade.login("clearuser", "password");});
+        assertNotNull(exception);
+    }
+    @Test
+    void clearNegative() {
+        ServerFacade bad = new ServerFacade("http://localhost:1234");
+        Exception exception = assertThrows(Exception.class, ()-> {bad.clear();});
         assertNotNull(exception);
     }
 }
