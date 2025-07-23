@@ -14,7 +14,7 @@ public class BoardGenerator {
 
         boolean white = (state.getWhichPlayerColor() == null
                 || state.getWhichPlayerColor() == ChessGame.TeamColor.WHITE);
-        System.out.println(EscapeSequences.ERASE_SCREEN);
+        System.out.print(EscapeSequences.ERASE_SCREEN);
         if (white) {
             drawTerminalBoard(board, 8, -1, 1, 9);
         } else {drawTerminalBoard(board, 1,1,8,0);}
@@ -33,48 +33,47 @@ public class BoardGenerator {
                 new String[]{" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "};
         drawFootHead(headers);
         //loop thru each row of the board
-        for (int rx = startRow; rx != startRow + (rowInc* 8); rx += rowInc) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_WHITE + " " + rx + " " + EscapeSequences.RESET_TEXT_COLOR);
-            for (int cx = startCol; cx != colEnd; cx += (startCol<colEnd ? 1: -1)){
-                boolean isItALightSquare = (rx +cx) % 2 != 0;
+        for (int rx = startRow; rx != startRow + (rowInc * 8); rx += rowInc) {
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE + " " + rx + " " + EscapeSequences.RESET_TEXT_COLOR);
+
+            for (int cx = startCol; cx != colEnd; cx += (startCol < colEnd ? 1 : -1)) {
+                boolean isItALightSquare = (rx + cx) % 2 != 0;
                 String backgroundColor = isItALightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
                         : EscapeSequences.SET_BG_COLOR_DARK_GREY;
                 //get piece at current row/column
                 ChessPiece piece = board.getPiece(new ChessPosition(rx, cx));
-                System.out.println(backgroundColor+getPieceType(piece));
+                System.out.print(backgroundColor + getPieceType(piece) + EscapeSequences.RESET_BG_COLOR);
             }
-            System.out.println(EscapeSequences.RESET_BG_COLOR + EscapeSequences.SET_TEXT_COLOR_WHITE + " " +rx + " ");
+
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_WHITE + " " + rx + " " + EscapeSequences.RESET_TEXT_COLOR);
         }
         drawFootHead(headers);
-        System.out.println(EscapeSequences.ERASE_SCREEN); // not sure if i erase or make a reset function for this
-
     }
     private void drawFootHead(String[] headers) {
-        System.out.println(EscapeSequences.SET_BG_COLOR_BLACK);
-        System.out.println("   ");
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + "   ");
         for (String header: headers) {
-            System.out.println(EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_BG_COLOR_WHITE + header);}
+            System.out.print(EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_BG_COLOR_MAGENTA + header + EscapeSequences.RESET_BG_COLOR);
+        }
         System.out.println(EscapeSequences.RESET_TEXT_BOLD_FAINT + "   ");
-        System.out.println(EscapeSequences.ERASE_SCREEN); // not sure if i erase or make a reset function for this
     }
     private String getPieceType(ChessPiece piece) {
-        if (piece == null) return EscapeSequences.EMPTY;
+        if (piece == null) return "   "; // 3 spaces to match piece width
         return switch (piece.getTeamColor()) {
             case WHITE -> switch (piece.getPieceType()) {
-                case KING -> EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.WHITE_KING;
-                case QUEEN -> EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.WHITE_QUEEN;
-                case BISHOP -> EscapeSequences.SET_BG_COLOR_BLUE+ EscapeSequences.WHITE_BISHOP;
-                case KNIGHT -> EscapeSequences.SET_BG_COLOR_BLUE+ EscapeSequences.WHITE_KNIGHT;
-                case ROOK -> EscapeSequences.SET_BG_COLOR_BLUE+ EscapeSequences.WHITE_ROOK;
-                case PAWN -> EscapeSequences.SET_BG_COLOR_BLUE+ EscapeSequences.WHITE_PAWN;
+                case KING -> EscapeSequences.WHITE_KING;
+                case QUEEN -> EscapeSequences.WHITE_QUEEN;
+                case BISHOP -> EscapeSequences.WHITE_BISHOP;
+                case KNIGHT -> EscapeSequences.WHITE_KNIGHT;
+                case ROOK -> EscapeSequences.WHITE_ROOK;
+                case PAWN -> EscapeSequences.WHITE_PAWN;
             };
             case BLACK -> switch (piece.getPieceType()) {
-                case KING -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_KING;
-                case QUEEN -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_QUEEN;
-                case BISHOP -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_BISHOP;
-                case KNIGHT -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_KNIGHT;
-                case ROOK -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_ROOK;
-                case PAWN -> EscapeSequences.SET_BG_COLOR_RED + EscapeSequences.BLACK_PAWN;
+                case KING -> EscapeSequences.BLACK_KING;
+                case QUEEN -> EscapeSequences.BLACK_QUEEN;
+                case BISHOP -> EscapeSequences.BLACK_BISHOP;
+                case KNIGHT -> EscapeSequences.BLACK_KNIGHT;
+                case ROOK -> EscapeSequences.BLACK_ROOK;
+                case PAWN -> EscapeSequences.BLACK_PAWN;
             };
         };
     }

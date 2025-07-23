@@ -8,13 +8,11 @@ import client.ui.BoardGenerator;
 // this is the conductor
 public class ChessClient {
 
-    private final String serverURL;
     private final ServerFacade serverFacade;
     private final ClientState clientState= new ClientState();
     private final BoardGenerator boardGenerator = new BoardGenerator();
 
-    public ChessClient(String serverURL, ServerFacade serverFacade) {
-        this.serverURL = serverURL;
+    public ChessClient(String serverURL) {
         this.serverFacade = new ServerFacade(serverURL);
     }
     public void run() {
@@ -28,7 +26,7 @@ public class ChessClient {
             } else if (!clientState.isInGame()) {
                 new PostLogin(serverFacade, clientState, boardGenerator).handle(args);
             } else {
-//                new Gameplay()
+                new Gameplay(clientState, boardGenerator).handle(args);
             }
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
