@@ -24,8 +24,12 @@ public class ClientState {
     }
 
     public String getPrompted() {
-        if (!isLoggedIn()) return "[LOGGED_OUT] >>> ";
-        if (!isInGame()) return "[LOGGED_IN] >>> ";
+        if (!isLoggedIn()) {
+            return "[LOGGED_OUT] >>> ";
+        }
+        if (!isInGame()) {
+            return "[LOGGED_IN] >>> ";
+        }
         return "[IN_GAME] >>> ";
     }
 

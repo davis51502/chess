@@ -57,7 +57,7 @@ public class BoardGenerator {
         System.out.println(EscapeSequences.RESET_TEXT_BOLD_FAINT + "   ");
     }
     private String getPieceType(ChessPiece piece) {
-        if (piece == null) return "   "; // 3 spaces to match piece width
+        if (piece == null) {return "   ";} // 3 spaces to match piece width
         return switch (piece.getTeamColor()) {
             case WHITE -> switch (piece.getPieceType()) {
                 case KING -> EscapeSequences.WHITE_KING;
