@@ -1,5 +1,7 @@
 package client;
 
+import client.handlers.Gameplay;
+import client.handlers.PostLogin;
 import client.handlers.PreLogin;
 
 // this is the conductor
@@ -15,13 +17,22 @@ public class ChessClient {
     }
     public void run() {
         System.out.println("welcome to chess, type 'help' to get started");
-        // new Repl(this).run(); fix
+         new Repl(this).run();
     }
     public void eval(String... args) {
         try {
             if (!clientState.isLoggedIn()) {
 //                new PreLogin(serverFacade, clientState)
+            } else if (!clientState.isInGame()) {
+//                new PostLogin()
+            } else {
+//                new Gameplay()
             }
+        } catch (Exception e) {
+            System.out.println("error: " + e.getMessage());
         }
+    }
+    public String getPrompt() {
+        return clientState.getPrompted();
     }
 }
