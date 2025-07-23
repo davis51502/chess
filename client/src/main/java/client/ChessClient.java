@@ -3,6 +3,7 @@ package client;
 import client.handlers.Gameplay;
 import client.handlers.PostLogin;
 import client.handlers.PreLogin;
+import client.ui.BoardGenerator;
 
 // this is the conductor
 public class ChessClient {
@@ -10,6 +11,7 @@ public class ChessClient {
     private final String serverURL;
     private final ServerFacade serverFacade;
     private final ClientState clientState= new ClientState();
+    private final BoardGenerator boardGenerator = new BoardGenerator();
 
     public ChessClient(String serverURL, ServerFacade serverFacade) {
         this.serverURL = serverURL;
@@ -24,7 +26,7 @@ public class ChessClient {
             if (!clientState.isLoggedIn()) {
                 new PreLogin(serverFacade, clientState).handle(args);
             } else if (!clientState.isInGame()) {
-//                new PostLogin()
+                new PostLogin(serverFacade, clientState, boardGenerator).handle(args);
             } else {
 //                new Gameplay()
             }

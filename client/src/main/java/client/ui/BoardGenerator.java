@@ -8,7 +8,7 @@ import client.ClientState;
 
 // prints the chessboard whilst using escape sequences
 public class BoardGenerator {
-    public void BoardGenerator(ClientState state) {
+    public void drawBoard(ClientState state) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
 

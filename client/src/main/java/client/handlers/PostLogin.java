@@ -1,5 +1,6 @@
 package client.handlers;
 
+import chess.ChessGame;
 import client.ClientState;
 import client.ServerFacade;
 import client.ui.BoardGenerator;
@@ -53,6 +54,28 @@ public class PostLogin {
             System.out.printf("%d. %s (white: %s, black: %s) %n ",
                     i +1 , data.gameName(), data.whiteUsername(), data.blackUsername());
         }
+    }
+    public void join(boolean isObserver) throws Exception {
+        System.out.print("game number:");
+        int gamenumber = Integer.parseInt(scanner.nextLine());
+        GameData data = state.getGamesList().get(gamenumber -1);
+        ChessGame.TeamColor color = null ;
+        if (!isObserver) {
+            System.out.print("ur color (white/black): ");
+            color = ChessGame.TeamColor.valueOf(scanner.nextLine().toUpperCase());
+        }
+        serverFacade.joinGame(state.getAuthToken(), color, data.gameID());
+        state.setInGame(true);
+        state.setCurrentGame(data);
+        state.setPlayerColor(color) ;
+        System.out.println("successfully joined game, welcome to chess!");
+        boardGenerator.drawBoard(state);
+    }
+    private void logout() throws Exception {
+        serverFacade.logout(state.getAuthToken());
+        state.setAuthToken(null);
+        state.setUsername(null);
+        System.out.println("you were logged out! :D");
     }
     private void help() throws Exception {
         System.out.println("""
