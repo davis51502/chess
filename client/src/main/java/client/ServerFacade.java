@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 // handles http connections
@@ -41,7 +42,9 @@ public class ServerFacade {
         return response.games;
     }
     public void joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws Exception{
-        var req = new JoinGameReq(playerColor, gameID);
+        Map<String, Object> req = new HashMap<>();
+        req.put("gameID", gameID);
+        if (playerColor != null){req.put("playerColor", playerColor);}
         makeReq("PUT", "/game", req, null, authToken) ;
     }
     protected HttpURLConnection openConnection(String path) throws Exception {

@@ -33,6 +33,23 @@ public class PreLogin {
         String password = scanner.nextLine();
         System.out.print("email: " );
         String email = scanner.nextLine();
+        if (username.isBlank() || password.isBlank() || email.isBlank()) {
+            System.out.println("Error: user, pw , and email can't be blank");
+            return;
+        }
+        try {
+            var auth = serverFacade.register(username, password, email);
+            state.setAuthToken(auth.authToken());
+            state.setUsername(auth.username());
+            System.out.println("registered + logged in as " + auth.username());
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("403")) {
+                System.out.println("Error: That username is already taken. Please choose another.");
+            } else {
+                System.out.println("Error: Registration failed.");
+            }
+        }
         var auth  = serverFacade.register(username,password,email);
         state.setAuthToken(auth.authToken());
         state.setUsername(auth.username());
