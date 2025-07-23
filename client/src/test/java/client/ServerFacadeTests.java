@@ -1,8 +1,11 @@
 package client;
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
+
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,9 +90,53 @@ public class ServerFacadeTests {
         assertNotNull(exception, "exception should be thrown because of the invalid token ");
 
     }
+    @Test
+    void createGamePositive() throws Exception {
+        AuthData frstUser = serverFacade.register("user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser);
+        assertNotNull(frstUser.authToken());
+        GameData result = serverFacade.createGame(frstUser.authToken(), "test game");
+        assertNotNull(result);
+        assertTrue(result.gameID()>0);
+    }
+    @Test
+    void createGameNegative() throws Exception {
+        Exception exception = assertThrows(Exception.class, () ->
+        {serverFacade.createGame("invalid", "test game");});
+        assertNotNull(exception);
+    }
+    @Test
+    void listGamesPositive() throws Exception {
+        AuthData frstUser = serverFacade.register("user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser);
+        GameData result = serverFacade.createGame(frstUser.authToken(), "list game");
+        assertNotNull(result);
+        Collection<GameData> expectations =serverFacade.listGames(frstUser.authToken());
+        assertNotNull(expectations);
+        assertFalse(expectations.isEmpty());
 
 
+    }
+    @Test
+    void listGamesNegative() throws Exception {
+        Exception exception = assertThrows(Exception.class, () ->
+        {serverFacade.listGames("invalid");});
+        assertNotNull(exception);
+    }
+    @Test
+    void joinGamesPositive() throws Exception {
+        AuthData frstUser = serverFacade.register("user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser);
+        GameData result = serverFacade.createGame(frstUser.authToken(), "join game");
+        assertNotNull(result);
+        assertDoesNotThrow(() ->
+        {serverFacade.joinGame(frstUser.authToken(), ChessGame.TeamColor.WHITE, result.gameID());});
 
-
-
+    }
+    @Test
+    void joinGamesNegative() throws Exception {
+        Exception exception = assertThrows(Exception.class, () ->
+        {serverFacade.joinGame("invalid", ChessGame.TeamColor.WHITE, 9999999);});
+        assertNotNull(exception);
+    }
 }
