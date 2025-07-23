@@ -10,6 +10,7 @@ import model.UserData;
 import javax.swing.text.html.HTML;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -77,7 +78,7 @@ public class ServerFacade {
         connection.addRequestProperty("Content-type","application/json");
         try (OutputStream reqBody = connection.getOutputStream()) {
             String json = gson.toJson(req);
-            reqBody.write(json.getBytes("UTF-8"));
+            reqBody.write(json.getBytes(StandardCharsets.UTF_8));
         }
     }
     private <T> T readRespBody(HttpURLConnection connection,Class<T> respClass) throws IOException {

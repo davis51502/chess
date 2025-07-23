@@ -58,5 +58,38 @@ public class ServerFacadeTests {
         assertNotNull(exception, "exception thrown for doubled user");
 
     }
+    @Test
+    void loginPositive() throws Exception {
+        AuthData frstUser = serverFacade.register("user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser, "1st registration should yield success");
+        AuthData loginRes = serverFacade.login("user","password");
+        assertNotNull(loginRes.authToken(), "login auth shouldn't be null ");
+        assertEquals("user", loginRes.username());
+    }
+    @Test
+    void loginNegative() throws Exception {
+        Exception exception = assertThrows(Exception.class, () ->
+        {serverFacade.login("fake user", "fake password");
+        });
+        assertNotNull(exception, "exception should be caught for a fake login");
+    }
+    @Test
+    void logoutPositive() throws Exception {
+        AuthData frstUser = serverFacade.register("user", "password", "suibacan@gmail.com");
+        assertNotNull(frstUser.authToken(), "auth token shouldn't be null");
+        assertDoesNotThrow(() -> {serverFacade.logout(frstUser.authToken());
+        });
+    }
+    @Test
+    void logoutNegative() throws Exception {
+        Exception exception = assertThrows(Exception.class, () ->
+        {serverFacade.logout("invalidtoken");});
+        assertNotNull(exception, "exception should be thrown because of the invalid token ");
+
+    }
+
+
+
+
 
 }
