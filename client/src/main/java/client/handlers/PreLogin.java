@@ -33,6 +33,28 @@ public class PreLogin {
         String password = scanner.nextLine();
         System.out.print("email: " );
         String email = scanner.nextLine();
-
+        var auth  = serverFacade.register(username,password,email);
+        state.setAuthToken(auth.authToken());
+        state.setUsername(auth.username());
+        System.out.println("registered + logged in as " + auth.username());
+    }
+    private void login() throws Exception {
+        System.out.print("username: " );
+        String username = scanner.nextLine();
+        System.out.print("password: " );
+        String password = scanner.nextLine();
+        var auth  = serverFacade.login(username,password);
+        state.setAuthToken(auth.authToken());
+        state.setUsername(auth.username());
+        System.out.println("logged in as " + auth.username());
+    }
+    private void help() throws Exception {
+        System.out.println("""
+                Available commands: 
+                register -create new account 
+                login - sign into existing account
+                help - show this message again 
+                quit - exit program 
+                """);
     }
 }

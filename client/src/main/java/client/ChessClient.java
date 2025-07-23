@@ -22,7 +22,7 @@ public class ChessClient {
     public void eval(String... args) {
         try {
             if (!clientState.isLoggedIn()) {
-//                new PreLogin(serverFacade, clientState)
+                new PreLogin(serverFacade, clientState).handle(args);
             } else if (!clientState.isInGame()) {
 //                new PostLogin()
             } else {
